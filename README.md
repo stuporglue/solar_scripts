@@ -1,4 +1,4 @@
-sopar_scripts
+Solar Scripts
 =============
 
 Some scripts for a solar project at school
