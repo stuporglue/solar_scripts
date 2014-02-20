@@ -47,7 +47,19 @@ class solar:
 
     # Sets self._globalTotalRadiation and returns it
     def globalTotalRadiation():
-        return globalDirectRadiation() + globalDiffuseRadiation()
+
+        if self._globalDiffuseRadiation == None:
+            self.globalDiffuseRadiation()
+
+        if self._globalDirectRadiation == None:
+            self.globalDirectRadiation()
+
+        if self._globalTotalRadiation == None:
+            # Not sure that this is actually going to work here. 
+            # These are numpy.ndarrays. We'll probably need to loop or something
+            self._globalTotalRadiation = self._globalDirectRadiation + self._globalDiffuseRadiation
+        
+        return self._globalTotalRadiation
 
 
     # Direct solar radiation
@@ -59,6 +71,9 @@ class solar:
 
     # Sets self._globalDirectRadiation and returns it
     def globalDirectRadiation():
+        if self._globalDirectRadiation != None:
+            return self._globalDirectRadiation
+
         tot = 0
         for sector in sectors:
             tot += dirinsolation(sector)
@@ -71,6 +86,9 @@ class solar:
 
     # Sets self._globalDiffuseRadiation and returns it
     def globalDiffuseRadiation():
+        if self._globalDiffuseRadiation != None:
+            return self._globalDiffuseRadiation
+
         tot = 0
         for sector in sectors:
             tot += difuse_radiation(sector)
