@@ -1,6 +1,16 @@
 #!/usr/bin/env python
+# coding=UTF-8
 
-class solar
+# From: http://resources.arcgis.com/en/help/main/10.1/index.html#//009z000000tm000000
+# How solar radiation is calculated
+# Desktop » Geoprocessing » Tool reference » Spatial Analyst toolbox » Solar Radiation toolset
+# 
+# The solar radiation analysis tools calculate insolation across a landscape or 
+# for specific locations, based on methods from the hemispherical viewshed algorithm 
+# developed by Rich et al. (Rich 1990, Rich et al. 1994) and further developed by 
+# Fu and Rich (2000, 2002).
+
+class solar:
     # module constants
 
     # SConst — The solar flux outside the atmosphere at the mean earth-sun 
@@ -15,39 +25,30 @@ class solar
 
     sectors = []
 
-    def __init__(self):
-        self.loadSectors()
-
-    def loadSectors(files):
-        self.sectors = []
-
-
-    # From: http://resources.arcgis.com/en/help/main/10.1/index.html#//009z000000tm000000
-    # How solar radiation is calculated
-    # Desktop » Geoprocessing » Tool reference » Spatial Analyst toolbox » Solar Radiation toolset
-    # 
-    # The solar radiation analysis tools calculate insolation across a landscape or 
-    # for specific locations, based on methods from the hemispherical viewshed algorithm 
-    # developed by Rich et al. (Rich 1990, Rich et al. 1994) and further developed by 
-    # Fu and Rich (2000, 2002).
-    # 
-    # The total amount of radiation calculated for a particular location or area is 
-    # given as global radiation. The calculation of direct, diffuse, and global insolation 
-    # are repeated for each feature location or every location on the topographic surface,
-    # producing insolation maps for an entire geographic area.
+    # Data should be a numpy.ndarray with the band's data
+    def __init__(self,data=None):
+        self.data = data
+        self._globalTotalRadiation = None
+        self._globalDiffuseRadiation = None
+        self._globalDirectRadiation = None
 
     # Solar radiation equations
-
-
     # Global radiation calculation
     # 
     # Global radiation (Globaltot) is calculated as the sum of direct (Dirtot) and 
     # diffuse (Diftot) radiation of all sun map and sky map sectors, respectively.
     # 
     #  Globaltot = Dirtot + Diftot
+    # 
+    # The total amount of radiation calculated for a particular location or area is 
+    # given as global radiation. The calculation of direct, diffuse, and global insolation 
+    # are repeated for each feature location or every location on the topographic surface,
+    # producing insolation maps for an entire geographic area.
 
-    def globaltot:
-        return dirtot() + diftot()
+    # Sets self._globalTotalRadiation and returns it
+    def globalTotalRadiation():
+        return globalDirectRadiation() + globalDiffuseRadiation()
+
 
     # Direct solar radiation
     # 
@@ -56,11 +57,25 @@ class solar
     # 
     #  Dirtot = Σ Dirθ,α    (1)
 
-    def dirtot:
+    # Sets self._globalDirectRadiation and returns it
+    def globalDirectRadiation():
         tot = 0
         for sector in sectors:
             tot += dirinsolation(sector)
         return tot
+
+    # Total diffuse solar radiation for the location (Diftot) is calculated as the sum 
+    # of the diffuse solar radiation (Dif) from all the sky map sectors:
+    # 
+    #  Diftot = Σ Difθ,α    (9)
+
+    # Sets self._globalDiffuseRadiation and returns it
+    def globalDiffuseRadiation():
+        tot = 0
+        for sector in sectors:
+            tot += difuse_radiation(sector)
+        return tot
+
 
     # The direct insolation from the sun map sector (Dirθ,α) with a centroid at 
     # zenith angle (θ) and azimuth angle (α) is calculated using the following equation:
@@ -81,8 +96,8 @@ class solar
     # AngInθ,α — The angle of incidence between the centroid of the sky sector and 
     #   the axis normal to the surface (see equation 4 below).
 
-    def dirinsolation(sector):
-        transmissivity = ???
+    def _dirinsolation(sector):
+        transmissivity = '???'
         pathlength = relative_optical_path_length(sector)
         sundur = sun_duration(sector)
         sungap = sun_gap(sector)
@@ -101,11 +116,11 @@ class solar
     #         θ — The solar zenith angle.
     #         Elev — The elevation above sea level in meters.
 
-    def relative_optical_path_length(sector):
+    def _relative_optical_path_length(sector):
         elev = sector.elevation
-        zenith = ???
+        zenith = '???'
         return (-0.000118 * elev - 1.638*10^-9 * elev^2) / math.cos(zenith)
-    
+
     # The effect of surface orientation is taken into account by multiplying by the 
     # cosine of the angle of incidence. Angle of incidence (AngInSkyθ,α) between the 
     # intercepting surface and a given sky sector with a centroid at zenith angle and 
@@ -119,11 +134,11 @@ class solar
     #         Note that for zenith angles greater than 80°, refraction is important.
     #         Ga — The surface azimuth angle.
 
-    def angle_of_incidence(sector):
+    def _angle_of_incidence(sector):
         gz = sector.surface_zenith_angle
         ga = sector.surface_azimuth_angle
         angle = sector.angle
-        alpha = ???
+        alpha = '???'
         return math.acos(math.cos(angle) * math.cos(gz) + math.sin(angle) * math.sin(gz) * math.cos(alpha - gz))
 
     # Diffuse radiation calculation
@@ -146,8 +161,8 @@ class solar
     #         AngInθ,α — The angle of incidence between the centroid of the sky 
     #           sector and the intercepting surface.
 
-    def difuse_radiation(sector):
-        dur = ????
+    def _difuse_radiation(sector):
+        dur = '???'
         gap = skygap(sector)
         wei = weight(sector)
         angle = angle_of_incidence(sector)
@@ -161,18 +176,18 @@ class solar
     # 
     #  Rglb = (SConst Σ(βm(θ))) / (1 - Pdif)    (6)
 
-    def global_normal_radiation():
+    def _global_normal_radiation():
         dirtot = dir_radiation()
         return (SCONST * dirtot) / (1 - PDIF)
 
-    def dir_radiation:
+    def _dir_radiation():
         tot = 0
         for sector in sectors:
             tot += dir_radiation_one(sector);
         return tot
 
-    def dir_radiation_one:
-        transmissivity = ???
+    def _dir_radiation_one():
+        transmissivity = '???'
         pathlength = relative_optical_path_length(sector)
         return transmissivity * pathlength 
 
@@ -184,10 +199,10 @@ class solar
     #         θ1 and θ2 — The bounding zenith angles of the sky sector.
     #         Divazi — The number of azimuthal divisions in the sky map.
 
-    def uniform_sky_diffuse_weight:
-        angle_one = ???
-        angle_two = ???
-        divisions = ???
+    def _uniform_sky_diffuse_weight():
+        angle_one = '???'
+        angle_two = '???'
+        divisions = '???'
         return (math.cos(angle_two) - math.cos(angle_one)) / divisions
 
 
@@ -195,33 +210,8 @@ class solar
     # 
     #  Weightθ,α = (2cosθ2 + cos2θ2 - 2cosθ1 - cos2θ1) / 4 * Divazi    (8)
 
-    def standard_overcast_weight:
-        angle_one = ???
-        angle_two = ???
-        divisions = ???
-        return (2 * math.cos(angle_two) + math.cos(2 * angle_two) -  2 * math.cos(angle_one) - math.cos(2 * angle_one)
-
-    # Total diffuse solar radiation for the location (Diftot) is calculated as the sum 
-    # of the diffuse solar radiation (Dif) from all the sky map sectors:
-    # 
-    #  Diftot = Σ Difθ,α    (9)
-
-    def diftot:
-        tot = 0
-        for sector in sectors:
-            tot += difuse_radiation(sector)
-        return tot
-
-    # 
-    # References
-    # 
-    # Fu, P. 2000. A Geometric Solar Radiation Model with Applications in Landscape 
-    #   Ecology. Ph.D. Thesis, Department of Geography, University of Kansas, Lawrence, Kansas, USA.
-    # Fu, P., and P. M. Rich. 2000. The Solar Analyst 1.0 Manual. Helios Environmental Modeling Institute (HEMI), USA.
-    # Fu, P., and P. M. Rich. 2002. "A Geometric Solar Radiation Model with Applications 
-    #   in Agriculture and Forestry." Computers and Electronics in Agriculture 37:25–35.
-    # Rich, P. M., R. Dubayah, W. A. Hetrick, and S. C. Saving. 1994. "Using Viewshed 
-    #   Models to Calculate Intercepted Solar Radiation: Applications in Ecology. 
-    #   American Society for Photogrammetry and Remote Sensing Technical Papers, 524–529.
-    # Rich, P. M., and P. Fu. 2000. "Topoclimatic Habitat Models." Proceedings of 
-    #   the Fourth International Conference on Integrating GIS and Environmental Modeling. 
+    def _standard_overcast_weight():
+        angle_one = '???'
+        angle_two = '???'
+        divisions = '???'
+        return (2 * math.cos(angle_two) + math.cos(2 * angle_two) -  2 * math.cos(angle_one) - math.cos(2 * angle_one))
