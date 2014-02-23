@@ -51,6 +51,8 @@ class solar:
         if self._globalDiffuseRadiation == None:
             self.globalDiffuseRadiation()
 
+        return self._globalDiffuseRadiation
+
         if self._globalDirectRadiation == None:
             self.globalDirectRadiation()
 
@@ -75,9 +77,16 @@ class solar:
             return self._globalDirectRadiation
 
         tot = 0
-        for sector in sectors:
+        for sector in sectors():
             tot += dirinsolation(sector)
         return tot
+
+    def sectors()
+        # http://webhelp.esri.com/arcgisdesktop/9.2/index.cfm?TopicName=Calculating_solar_radiation
+        # http://resources.arcgis.com/en/help/main/10.2/index.html#/Area_Solar_Radiation/009z000000t5000000/
+        # Default is 8x8
+
+
 
     # Total diffuse solar radiation for the location (Diftot) is calculated as the sum 
     # of the diffuse solar radiation (Dif) from all the sky map sectors:
@@ -90,7 +99,7 @@ class solar:
             return self._globalDiffuseRadiation
 
         tot = 0
-        for sector in sectors:
+        for sector in sectors():
             tot += difuse_radiation(sector)
         return tot
 
@@ -200,7 +209,7 @@ class solar:
 
     def _dir_radiation():
         tot = 0
-        for sector in sectors:
+        for sector in sectors():
             tot += dir_radiation_one(sector);
         return tot
 

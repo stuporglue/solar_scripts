@@ -56,8 +56,6 @@ band = dsm.GetRasterBand(1)
 # Data is a numpy.ndarray
 data = band.ReadAsArray(0,0,cols,rows)
 
-print type(data)
-
 solar = solar(data)
 outdata = solar.globalTotalRadiation()
 
