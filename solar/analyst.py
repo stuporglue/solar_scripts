@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding=UTF-8
 
+import sunmap
+
 # From: http://resources.arcgis.com/en/help/main/10.1/index.html#//009z000000tm000000
 # How solar radiation is calculated
 # Desktop » Geoprocessing » Tool reference » Spatial Analyst toolbox » Solar Radiation toolset
@@ -10,7 +12,7 @@
 # developed by Rich et al. (Rich 1990, Rich et al. 1994) and further developed by 
 # Fu and Rich (2000, 2002).
 
-class solar:
+class analyist:
     # module constants
 
     # SConst — The solar flux outside the atmosphere at the mean earth-sun 
@@ -31,6 +33,7 @@ class solar:
         self._globalTotalRadiation = None
         self._globalDiffuseRadiation = None
         self._globalDirectRadiation = None
+        self._sunmap = sunmap()
 
     # Solar radiation equations
     # Global radiation calculation
@@ -47,7 +50,6 @@ class solar:
 
     # Sets self._globalTotalRadiation and returns it
     def globalTotalRadiation():
-
         if self._globalDiffuseRadiation == None:
             self.globalDiffuseRadiation()
 
@@ -77,16 +79,9 @@ class solar:
             return self._globalDirectRadiation
 
         tot = 0
-        for sector in sectors():
-            tot += dirinsolation(sector)
+        for sector in self._sunmap.sectors():
+            tot += _dirinsolation(sector)
         return tot
-
-    def sectors()
-        # http://webhelp.esri.com/arcgisdesktop/9.2/index.cfm?TopicName=Calculating_solar_radiation
-        # http://resources.arcgis.com/en/help/main/10.2/index.html#/Area_Solar_Radiation/009z000000t5000000/
-        # Default is 8x8
-
-
 
     # Total diffuse solar radiation for the location (Diftot) is calculated as the sum 
     # of the diffuse solar radiation (Dif) from all the sky map sectors:
@@ -99,7 +94,7 @@ class solar:
             return self._globalDiffuseRadiation
 
         tot = 0
-        for sector in sectors():
+        for sector in self._sunmap.sectors():
             tot += difuse_radiation(sector)
         return tot
 
@@ -124,11 +119,11 @@ class solar:
     #   the axis normal to the surface (see equation 4 below).
 
     def _dirinsolation(sector):
-        transmissivity = '???'
-        pathlength = relative_optical_path_length(sector)
-        sundur = sun_duration(sector)
-        sungap = sun_gap(sector)
-        angle  = angle_of_incidence(sector)
+        transmissivity = self._sunmap.transmissivity()
+        pathlength = _relative_optical_path_length(sector)
+        sundur = _sun_duration(sector)
+        sungap = _sun_gap(sector)
+        angle  = _angle_of_incidence(sector)
 
         return SCONST * transmissivity * pathlength * sundur * sungap * math.cos(angle)
 
@@ -145,7 +140,7 @@ class solar:
 
     def _relative_optical_path_length(sector):
         elev = sector.elevation
-        zenith = '???'
+        zenith = sector['zenith']
         return (-0.000118 * elev - 1.638*10^-9 * elev^2) / math.cos(zenith)
 
     # The effect of surface orientation is taken into account by multiplying by the 
@@ -209,7 +204,7 @@ class solar:
 
     def _dir_radiation():
         tot = 0
-        for sector in sectors():
+        for sector in self._sunmap.sectors():
             tot += dir_radiation_one(sector);
         return tot
 

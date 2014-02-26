@@ -11,7 +11,7 @@
 import gdal
 from gdalconst import *
 import sys
-import solar
+from solar import *
 
 # Check usage
 if len(sys.argv) < 3:
@@ -56,7 +56,7 @@ band = dsm.GetRasterBand(1)
 # Data is a numpy.ndarray
 data = band.ReadAsArray(0,0,cols,rows)
 
-solar = solar(data)
+solar = analyist(data)
 outdata = solar.globalTotalRadiation()
 
 # Output untested. This all came from here
