@@ -4,7 +4,18 @@
 # walz0053@umn.edu
 #
 
-import sys, os, subprocess
+import sys, os, subprocess, glob
+
+
+################ Usage check and argument assigning
+if len(sys.argv) != 2:
+    print "Usage: blast2dem.py c:\base\path\to\q***"
+    exit(-1)
+else:
+    basepath = sys.argv[1]
+
+
+################ Function definitions
 
 def check_output(command,console):
     if console == True:
@@ -85,32 +96,14 @@ def blast2dem(inlaz,outdem):
     print "Success. blast2dem done."
 
 
-
-mypath = "F:\\MnLAZ\\"
-
 #print glob.glob("C:\\lidar_data\\hennepin\\laz\\test_blast\\*.laz")
 
 #print next(os.walk("C:\\lidar_data\\hennepin\\laz\\test_blast\\"))[2]
 
-
-from os import listdir
-from os.path import isfile, join
-onlyfiles = [ f for f in listdir(mypath) if isfile(join(mypath,f)) ]
-
-print onlyfiles
-
-from os import walk
-
+################ Running our functions on input data
 f = []
-for (dirpath, dirnames, filenames) in walk(mypath):
-    print dirpath, dirnames
-    
-    for folder in dirnames:
-        lazpath = mypath + folder + "laz\\"
-        qnum = folder[1:]
-        currfiles = lazpath + qnum + "*.laz"
-        print "now blasting: ", currfiles, " to ", qnum+".img"
-        #blast2dem(currfiles,qnum+".img")
-        break
-    
-    break
+for curdir in glob.glob(basepath + '\\q*'):
+    lazfiles = glob.glob(curdir + '\\laz\\*.laz')
+
+    print 'Processing ' + str(len(lazfiles)) + ' laz files in ' + curdir + '\\laz\\'
+    #blast2dem(currfiles,qnum+".img")
