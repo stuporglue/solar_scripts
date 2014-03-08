@@ -5,15 +5,30 @@
 #
 
 import sys, os, subprocess, glob
+from distutils.spawn import *
 
 
 ################ Usage check and argument assigning
-if len(sys.argv) != 2:
-    print "Usage: blast2dem.py c:\base\path\to\q***"
+if len(sys.argv) != 3:
+    print "Usage: blast2dem.py <input directory> <output directory>"
+    print "The intput directory should have the q**** directories in it, eg. c:\base\path\to\q***"
+    print "Contents in the output directory will be overwritten"
     exit(-1)
 else:
     basepath = sys.argv[1]
+    outputdir = sys.argv[2]
 
+if find_executable('blast2dem') == None:
+    print "Please make sure that blast2dem.exe is in your PATH environment"
+    exit(-1)
+
+if not os.path.isdir(basepath):
+    print "Input directory must be a directory and exist"
+    exit(-1)
+
+if not os.path.isdir(outputdir):
+    print "Output directory must be a directory and exist"
+    exit(-1)
 
 ################ Function definitions
 
@@ -26,16 +41,9 @@ def check_output(command,console):
     returncode = process.poll()
     return returncode,output 
 
-def blast2dem(inlaz,outdem):
-    
-    ### complete the path to where the LAStools executables are
-    lastools_path = r"C:\lastools\bin"
-
-    ### create the full path to the blast2dem executable
-    blast2dem_path = lastools_path+"\\blast2dem.exe"
-
+def blast2dem(inlaz,qnum):
     ### create the command string for blast2dem.exe
-    command = ["blast2dem"] #['"'+blast2dem_path+'"']
+    command = ["blast2dem"] 
 
     ### use '-verbose' option
     command.append("-v")
@@ -66,11 +74,11 @@ def blast2dem(inlaz,outdem):
 
     ### maybe an output file name was selected
     command.append("-o")
-    command.append('"'+ outdem +'"')
+    command.append('"'+ qnum +'.img"')
 
     ### maybe an output directory was selected
     command.append("-odir")
-    command.append('"'+"C:\\lidar_data\\hennepin\\laz\\pyout\\"+'"')
+    command.append('"' + outputdir + '"')
 
 
     ### report command string
@@ -83,22 +91,20 @@ def blast2dem(inlaz,outdem):
         command[i] = command[i].strip('"')
     print command_string
 
-    ### run command
-    returncode,output = check_output(command, False)
+    print "Would run: " + command_string
 
-    ### report output of blast2dem
-    print str(output)
+    #### run command
+    #returncode,output = check_output(command, False)
 
-    if returncode != 0:
-        print "Error. blast2dem failed."
-        sys.exit(1)
+    #### report output of blast2dem
+    #print str(output)
 
-    print "Success. blast2dem done."
+    #if returncode != 0:
+    #    print "Error. blast2dem failed."
+    #    sys.exit(1)
 
+    #print "Success. blast2dem done."
 
-#print glob.glob("C:\\lidar_data\\hennepin\\laz\\test_blast\\*.laz")
-
-#print next(os.walk("C:\\lidar_data\\hennepin\\laz\\test_blast\\"))[2]
 
 ################ Running our functions on input data
 f = []
@@ -106,4 +112,5 @@ for curdir in glob.glob(basepath + '\\q*'):
     lazfiles = glob.glob(curdir + '\\laz\\*.laz')
 
     print 'Processing ' + str(len(lazfiles)) + ' laz files in ' + curdir + '\\laz\\'
-    #blast2dem(currfiles,qnum+".img")
+    qnum = os.path.basename(os.path.realpath(curdir))
+    blast2dem(curdir + '\\laz\\*.laz',qnum)
