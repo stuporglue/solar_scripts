@@ -1,1 +1,4 @@
 *.pyc
+*.tmp
+*.swp
+file_list_blast*

@@ -1,4 +1,4 @@
-# blast2dem.py
+# lasIndex.py
 # blast all MN Lidar to DEM
 # walz0053@umn.edu
 #
@@ -8,7 +8,7 @@ from distutils.spawn import *
 
 ################ Usage check and argument assigning
 if len(sys.argv) != 2:
-    print "Usage: las_index.py <input directory>"
+    print "Usage: lasIndex.py <input directory>"
     print "The intput directory should have the q**** directories in it, eg. c:\base\path\to\q***"
     exit(-1)
 else:

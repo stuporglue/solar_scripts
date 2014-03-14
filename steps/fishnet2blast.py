@@ -25,7 +25,7 @@ for curdir in glob.glob(basepath + '\\q*'):
     globs.append(curdir + '\\laz\\*.laz')
 
 skipping = re.compile('.*bounding box. skipping.*',re.DOTALL)
-for linestr in content:
+for linestr in content[1:]:
 
     line = linestr.strip().split(',')
     outputfile = outputdir + '\\' + '_'.join(line) + '.img'
@@ -33,6 +33,10 @@ for linestr in content:
 
     # Input tiles
     cmd.append('-i ' + ' '.join(globs))
+
+    # Processing parameters
+    cmd.append('-merged')
+    cmd.append('-step 1')
 
     # Spatial Filtering 
     # This defines the buffered area used for calcultions
@@ -46,10 +50,10 @@ for linestr in content:
     # Data Filtering 
     cmd.append('-first_only')
     cmd.append('-elevation')
+    cmd.append('-drop_class 1 2 3')
 
     # Output parameters
     cmd.append('-v')
-    cmd.append('-merged')
     cmd.append('-oimg')
     cmd.append('-o ' + '_'.join(line) + '.img')
     cmd.append('-odir ' + outputdir)
@@ -78,6 +82,4 @@ for linestr in content:
     if skipping.match(output):
         print "No data found"
         os.unlink(outputfile)
-
-
 
