@@ -17,7 +17,7 @@ fishnetfile = sys.argv[3]
 buffersize  = 50
 
 with open(fishnetfile,'r') as f:
-    content = f.read().decode('utf-16').split("\n")
+    content = f.read().split("\n")
 
 ################ Running our functions on input data
 globs = []
