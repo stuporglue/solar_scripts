@@ -8,7 +8,6 @@ import sys,glob,subprocess,re,os
 
 if len(sys.argv) != 4:
     print "Usage fishnet2blast.py <input directory> <outputdir> <fishnet csv file>"
-    print len(sys.argv)
     exit(-1)
 
 basepath    = sys.argv[1]
@@ -25,7 +24,11 @@ for curdir in glob.glob(basepath + '\\q*'):
     globs.append(curdir + '\\laz\\*.laz')
 
 skipping = re.compile('.*bounding box. skipping.*',re.DOTALL)
-for linestr in content[1:]:
+total = len(content) - 1
+for idx,linestr in enumerate(content[1:]):
+
+    print ""
+    sys.stdout.write(str(int(idx/total)) + "% done, current tile is (" + str(idx) + "/" +str(total) + "), (" + linestr + ")")
 
     line = linestr.strip().split(',')
     outputfile = outputdir + '\\' + '_'.join(line) + '.img'
@@ -55,13 +58,18 @@ for linestr in content[1:]:
     # Output parameters
     cmd.append('-v')
     cmd.append('-oimg')
-    cmd.append('-o ' + '_'.join(line) + '.img')
+    filename = '_'.join(line) + '.img'
+    cmd.append('-o ' + filename)
     cmd.append('-odir ' + outputdir)
 
     command = ' '.join(cmd)
 
     #print "-----------------------------------------"
-    print command
+    #print command
+
+    if os.path.isfile(outputdir + "\\" + filename):
+        sys.stdout.write("\t\t\tAlready Exists. Not Re-generating")
+        continue
 
     # Check output
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
@@ -74,12 +82,19 @@ for linestr in content[1:]:
 
     # Print errors
     if error != None:
-        print error
+        sys.stdout.write("\t\t\t" + error)
+        os.unlink(outputdir + "\\" + filename)
+        continue
     if returncode != 0:
-        print output
+        sys.stdout.write("\t\t\t" + output)
+        os.unlink(outputdir + "\\" + filename)
+        continue
 
     # Remove empty files. Will happen where fishnet is off the map
-    if skipping.match(output):
-        print "No data found"
+    # 750703 -- 748kb files when they're solid black (also no results)
+    if skipping.match(output) or int(os.stat(outputdir + "\\" + filename).st_size) == 750703:
+        sys.stdout.write("\t\t\tNo data found, not saving tile.")
         os.unlink(outputfile)
+        continue
 
+    sys.stdout.write("\t\t\tDONE!")

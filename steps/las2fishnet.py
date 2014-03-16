@@ -33,14 +33,28 @@ globs = []
 for curdir in glob.glob(basepath + '\\q*'):
     globs.append(curdir + '\\laz\\*.laz')
 
-res = subprocess.check_output("lasinfo.exe -i " + " ".join(globs) + " -merged -no_check",stderr=subprocess.STDOUT)
+
+# Check output
+command = "lasinfo.exe -i " + " ".join(globs) + " -merged -no_check"
+process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+output,error = process.communicate()
+returncode = process.poll()
+
+if error != None:
+    print error
+if returncode != 0:
+    print output
+
+if error != None or returncode != 0:
+    exit(-1)
+
 
 minline = re.compile('\s*min x y z:\s*(.*)\s+(.*)\s+.*')
 maxline = re.compile('\s*max x y z:\s*(.*)\s+(.*)\s+.*')
 
 # String min/max
 sminx = smaxx = sminy = smaxy = 0
-for line in res.split("\n"):
+for line in output.split("\n"):
     matches = minline.match(line.strip())
     if matches:
         sminx = matches.group(1)
