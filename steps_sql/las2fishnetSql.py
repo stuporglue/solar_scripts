@@ -113,19 +113,21 @@ print "Bounding box: (" + str(rminx) + ',' + str(rminy) + '),(' + str(rmaxx) + '
 f = open(outputfile,'w')
 tablerows = []
 queryprefix = "INSERT INTO " + tablename + " (the_geom) VALUES "
-f.write("xmin,ymin,xmax,ymax" + "\n")
-for x in range(rminx,rmaxx,fishnetsize):
+xrange = range(rminx,rmaxx,fishnetsize)
+tots = str(len(xrange))
+for idx,x in enumerate(xrange):
+    print "Working on row " + str(idx) + " of " + tots
     for y in range(rminy,rmaxy,fishnetsize):
         tablerows.append("(ST_MakeEnvelope(" + str(x) + "," + str(y) + "," + str(x + fishnetsize) + "," + str(y + fishnetsize) + "))")
 
         if len(tablerows) >= maxinserts:
             query = queryprefix + ",".join(tablerows)
-            f.write(insertIntoCartoDB(query + ";\n"))
+            f.write(query + ";\n")
             tablerows = []
 
 if len(tablerows) > 0:
     query = queryprefix + ",".join(tablerows)
-    f.write(insertIntoCartoDB(query + ";\n"))
+    f.write(query + ";\n")
     tablerows = []
 
 f.close()
