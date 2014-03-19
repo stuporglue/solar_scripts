@@ -8,6 +8,7 @@ import sys, os, subprocess, glob, re, math
 from subprocess import call
 from distutils.spawn import *
 
+datasrid = 32615
 maxinserts = 1000
 tablename = "dem_fishnets"
 
@@ -118,7 +119,7 @@ tots = str(len(xrange))
 for idx,x in enumerate(xrange):
     print "Working on row " + str(idx) + " of " + tots
     for y in range(rminy,rmaxy,fishnetsize):
-        tablerows.append("(ST_MakeEnvelope(" + str(x) + "," + str(y) + "," + str(x + fishnetsize) + "," + str(y + fishnetsize) + "))")
+        tablerows.append("(ST_MakeEnvelope(" + str(x) + "," + str(y) + "," + str(x + fishnetsize) + "," + str(y + fishnetsize) + "," + str(datasrid) + "))")
 
         if len(tablerows) >= maxinserts:
             query = queryprefix + ",".join(tablerows)
