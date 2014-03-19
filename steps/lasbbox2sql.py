@@ -30,7 +30,7 @@ maxline = re.compile('\s*max x y z:\s*(.*)\s+(.*)\s+.*')
 ################ Insert an array into CartoDB
 def insertIntoCartoDB(tablerows):
     queryprefix = "INSERT INTO " + tablename + " (lasfile,the_geom) VALUES "
-    query = queryprefix + ",".join(tablerows)
+    query = queryprefix + ",".join(tablerows) + ";\n"
     return query
 
 ################ Running our functions on input data
@@ -69,11 +69,11 @@ for qdir in glob.glob(basepath + '\\q*'):
         tablerows.append("('" + lazfile + "',"+ "ST_MakeEnvelope(" + sminx + "," + sminy + "," + smaxx + "," + smaxy + "," + str(datasrid) + "))")
 
         if len(tablerows) >= maxinserts:
-            f.write(insertIntoCartoDB(tablerows) + "\n")
+            f.write(insertIntoCartoDB(tablerows))
             tablerows = []
 
 if len(tablerows) > 0:
-    f.write(insertIntoCartoDB(tablerows) + "\n")
+    f.write(insertIntoCartoDB(tablerows))
 
 f.close()
 print "Done"
