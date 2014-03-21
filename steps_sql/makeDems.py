@@ -7,7 +7,7 @@
 # 1 -- reserved, but not complete
 # 2 -- completed
 
-import dbconn
+import dbconn,sys
 
 buffersize  = 50
 
@@ -17,42 +17,30 @@ if len(sys.argv) != 2:
 
 outputdir   = sys.argv[1]
 
-reserveQuery = " 
-    UPDATE 
-    dem_fishnets dem 
-    SET state=1 
-    WHERE 
-    dem.id in (SELECT id FROM dem_fishnets WHERE state=0 LIMIT 1)
-    RETURNING 
-    id,
-    ST_XMin(the_geom) as xmin,
-    ST_YMin(the_geom) as ymin,
-    ST_XMax(the_geom) as xmax,
-    ST_YMax(the_geom) as ymax
-"
+reserveQuery = """UPDATE dem_fishnets dem SET state=1 WHERE dem.id in (SELECT id FROM dem_fishnets WHERE state=0 LIMIT 1) RETURNING id, ST_XMin(the_geom) as xmin, ST_YMin(the_geom) as ymin, ST_XMax(the_geom) as xmax, ST_YMax(the_geom) as ymax"""
 
-lidarlist = "
+lidarlist = """
     SELECT bbox.* FROM 
     dem_fishnets dem,
     lidar_bbox bbox
     WHERE dem.id=DEMID
     AND 
     ST_Intersects(ST_Buffer(dem.the_geom,100),bbox.the_geom)
-"
+    """
 
-completeQuery = "
+completeQuery = """
     UPDATE 
     dem_fishnets dem
     SET state=2
     WHERE
     dem.id=DEMID
-"
+    """
 
 # Lidar is an array of lidar files to consider
 # line is (xmin,ymin,xmax,ymax) for the output area
 # buffersize is the buffer to apply for consideration
 # outputdir is the directory where the files should be saved
-def blast2dem(demid,lidar,line,buffersize,outputdir)
+def blast2dem(demid,lidar,line,buffersize,outputdir):
 
     line = linestr.strip().split(',')
     outputfile = outputdir + '\\' + '_'.join(line) + '.img'
@@ -119,6 +107,7 @@ def blast2dem(demid,lidar,line,buffersize,outputdir)
 
 res = dbconn.run_query(reserveQuery)
 while len(res) > 0:
+    print "Continuing"
     for row in res:
         os.stdout.write("\nRunning blast2dem for row " + str(row['id']))
 

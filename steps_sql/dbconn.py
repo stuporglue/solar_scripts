@@ -26,5 +26,10 @@ def rewind():
     return cur.scroll(0,mode='absolute')
 
 def run_query(q):
-    cur.execute(q)
+    print "Query: " + q
+    try:
+        cur.execute(q)
+    except Exception as exp:
+        print exp;
+
     return cur
