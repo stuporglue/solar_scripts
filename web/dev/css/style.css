@@ -29,8 +29,8 @@ li {
     padding: 5px;
     font-weight: bold;
 }
-
 #legend {
+    background-color: #eeffcc;
     position: absolute;
     bottom: 30px;
     right: 10px;
@@ -39,3 +39,8 @@ li {
     overflow: hidden;
 }
 
+#legend p {
+    width: 250px;
+    padding: 0 10px;
+    font-size: 0.9em;
+}

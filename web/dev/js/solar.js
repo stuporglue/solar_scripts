@@ -39,12 +39,12 @@ function style(feature) {
 
 function bboxStyle(feature){
     return {
-        fillColor: colormap[feature.properties.state],
-        weight: 0.5,
-        opacity: 0.0,
+        fillColor: '#ffffff',
+        fillOpacity: 0.0,
+
         color: '#5f3764',
-        dashArray: '3',
-        fillOpacity: 0.4
+        opacity: 0.8,
+        weight: 0.8
     }
 }
 
@@ -58,15 +58,11 @@ function makePopup(feature,layer){
 }
 
 layers = {
-    dem_fishnet: L.geoJson(null,{onEachFeature:makePopup,style:style}),
+    dem_fishnet: L.geoJson(null,{onEachFeature:makePopup,style:style}).addTo(map),
     lidar_bbox: L.geoJson(null,{onEachFeature:makePopup,style:bboxStyle})
 };
 
-layers.dem_fishnet.addTo(map);
-// layers.lidar_bbox.addTo(map);
-
-
-//L.control.layers(null,layers).addTo(map);
+L.control.layers(null,layers).addTo(map);
 
 $.getJSON("./js/dem_fishnets.py",function(json){ layers.dem_fishnet.addData(json); });
-// $.getJSON("./js/lidar_bbox.json",function(json){ layers.lidar_bbox.addData(json); });
+$.getJSON("./js/lidar_bbox.json",function(json){ layers.lidar_bbox.addData(json); });
