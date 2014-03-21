@@ -9,7 +9,7 @@
 # 1 -- reserved, but not complete
 # 2 -- completed
 
-import dbconn,sys,os,subprocess,re,tempfile
+import dbconn,sys,os,subprocess,re,tempfile,time
 
 buffersize  = 50
 
@@ -148,6 +148,7 @@ res = dbconn.run_query(reserveQuery).fetchall()
 while len(res) > 0:
     for row in res:
         sys.stdout.write("\nRunning blast2dem for row " + str(row['id']) + "\t\t\t")
+        starttime = time.time()
 
         tmp = tempfile.NamedTemporaryFile(delete=False)
         lidares = dbconn.run_query(lidarlist.replace("DEMID",str(row['id']))).fetchall()
@@ -157,12 +158,14 @@ while len(res) > 0:
 
         blasted = blast2dem(demid=row['id'],lidarlist=tmp.name,line=[str(int(row['xmin'])),str(int(row['ymin'])),str(int(row['xmax'])),str(int(row['ymax']))],buffersize=buffersize,outputdir=outputdir)
 
+        stoptime = time.time()
+
         if blasted:
-            print "DONE!"
+            print "DONE! (" + str((stoptime - starttime)) + " seconds)"
             os.unlink(tmp.name)
             dbconn.run_query(completeQuery.replace("DEMID",str(row['id'])).replace('NEWSTATE','2'))
         else:
-            print "Error"
+            print "Error! (" + str((stoptime - starttime)) + " seconds)"
             dbconn.run_query(completeQuery.replace("DEMID",str(row['id'])).replace('NEWSTATE','-3'))
 
     res = dbconn.run_query(reserveQuery).fetchall()
