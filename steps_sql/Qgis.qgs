@@ -5,10 +5,10 @@
     <mapcanvas>
         <units>meters</units>
         <extent>
-            <xmin>96347.49829155183397233</xmin>
-            <ymin>4448812.98027050029486418</ymin>
-            <xmax>1654249.92748315003700554</xmax>
-            <ymax>5347296.35055874940007925</ymax>
+            <xmin>-139007.06208425725344568</xmin>
+            <ymin>4792732.5</ymin>
+            <xmax>1093007.06208425713703036</xmax>
+            <ymax>5503267.5</ymax>
         </extent>
         <projections>0</projections>
         <destinationsrs>
@@ -38,7 +38,7 @@
         </legendlayer>
     </legend>
     <projectlayers layercount="2">
-        <maplayer minimumScale="-4.65661e-10" maximumScale="1e+08" simplifyDrawingHints="1" minLabelScale="0" maxLabelScale="1e+08" simplifyDrawingTol="1" geometry="Polygon" simplifyMaxScale="1" type="vector" hasScaleBasedVisibilityFlag="0" simplifyLocal="1" scaleBasedLabelVisibilityFlag="0">
+        <maplayer minimumScale="0" maximumScale="1e+08" simplifyDrawingHints="1" minLabelScale="0" maxLabelScale="1e+08" simplifyDrawingTol="1" geometry="Polygon" simplifyMaxScale="1" type="vector" hasScaleBasedVisibilityFlag="0" simplifyLocal="1" scaleBasedLabelVisibilityFlag="0">
             <id>dem_fishnets20140320040145462</id>
             <datasource>dbname='solar' host=stuporglue.duckdns.org port=55432 user='solar' password='mgis2014' sslmode=disable key='id' srid=32615 type=POLYGON table="public"."dem_fishnets" (the_geom) sql=</datasource>
             <title></title>
@@ -69,7 +69,7 @@
                     <category symbol="2" value="0" label="Unprocessed"/>
                     <category symbol="3" value="1" label="Being Processed"/>
                     <category symbol="4" value="2" label="Done"/>
-                    <category symbol="5" value="3" label="Tile generation failed"/>
+                    <category symbol="5" value="-3" label="Tile generation failed"/>
                 </categories>
                 <symbols>
                     <symbol alpha="1" type="fill" name="0">

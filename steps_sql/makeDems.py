@@ -9,7 +9,7 @@
 # 1 -- reserved, but not complete
 # 2 -- completed
 
-import dbconn,sys,os,subprocess,re
+import dbconn,sys,os,subprocess,re,tempfile
 
 buffersize  = 50
 
@@ -43,7 +43,7 @@ lidarlist = """
     WHERE dem.id=DEMID
     AND 
     ST_Intersects(ST_Buffer(dem.the_geom,100),bbox.the_geom)
-    """
+"""
 
 completeQuery = """
     UPDATE 
@@ -51,19 +51,20 @@ completeQuery = """
     SET state=NEWSTATE
     WHERE
     dem.id=DEMID
-    """
+"""
 
-# Lidar is an array of lidar files to consider
+# demid is the database ID of the dem fishnet square we're working on
+# lidarlist is a text file with a list of lidar files to use. This is needed because the command line gets too long for Powershell or blast2dem (not sure which)
 # line is (xmin,ymin,xmax,ymax) for the output area
 # buffersize is the buffer to apply for consideration
 # outputdir is the directory where the files should be saved
-def blast2dem(demid,lidar,line,buffersize,outputdir):
+def blast2dem(demid,lidarlist,line,buffersize,outputdir):
 
     outputfile = outputdir + '\\' + '_'.join(line) + '.img'
     cmd = ['blast2dem']
 
     # Input tiles
-    cmd.append('-i ' + ' '.join(lidar))
+    cmd.append('-lof ' + lidarlist)
 
     # Processing parameters
     cmd.append('-merged')
@@ -92,8 +93,10 @@ def blast2dem(demid,lidar,line,buffersize,outputdir):
 
     command = ' '.join(cmd)
 
-    #print "-----------------------------------------"
-    #print command
+    # print "-----------------------------------------"
+    # print command
+    # return 
+
 
     # Check output
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
@@ -107,11 +110,13 @@ def blast2dem(demid,lidar,line,buffersize,outputdir):
     # Print errors
     if error != None:
         sys.stdout.write("\t\t\t" + error)
+        print "\n\t\t" + command 
         if os.path.isfile(outputdir + "\\" + filename):
             os.unlink(outputdir + "\\" + filename)
         return False
     if returncode != 0:
         sys.stdout.write("\t\t\t" + output)
+        print "\n\t\t" + command 
         if os.path.isfile(outputdir + "\\" + filename):
             os.unlink(outputdir + "\\" + filename)
         return False
@@ -130,12 +135,15 @@ while len(res) > 0:
     for row in res:
         sys.stdout.write("\nRunning blast2dem for row " + str(row['id']) + "\t\t\t")
 
-        lidars = []
+        tmp = tempfile.NamedTemporaryFile(delete=False)
         lidares = dbconn.run_query(lidarlist.replace("DEMID",str(row['id']))).fetchall()
         for lidar in lidares:
-            lidars.append(lidar['lasfile'])
+            tmp.write(lidar['lasfile'] + "\n")
+        tmp.close()
 
-        blasted = blast2dem(row['id'],lidars,[str(int(row['xmin'])),str(int(row['ymin'])),str(int(row['xmax'])),str(int(row['ymax']))],buffersize,outputdir)
+        blasted = blast2dem(demid=row['id'],lidarlist=tmp.name,line=[str(int(row['xmin'])),str(int(row['ymin'])),str(int(row['xmax'])),str(int(row['ymax']))],buffersize=buffersize,outputdir=outputdir)
+
+        os.unlink(tmp.name)
 
         if blasted:
             print "DONE!"
