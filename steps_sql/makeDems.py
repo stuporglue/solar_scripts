@@ -139,7 +139,7 @@ def blast2dem(demid,lidarlist,line,buffersize,outputdir):
     # 750703 -- 748kb files when they're solid black (also no results)
     if re.match('.*bounding box. skipping.*',output,re.DOTALL) or int(os.stat(outputdir + "\\" + filename).st_size) == 750703:
         sys.stdout.write("\t\t\tNo data found, not saving tile.")
-        os.unlink(outputfile)
+        os.unlink(outputdir + "\\" + filename)
         return True
 
     return True

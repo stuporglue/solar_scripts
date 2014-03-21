@@ -76,6 +76,6 @@ def send_array_as_json(arr):
     print
 
     # Encode resulting object as json
-    js = json.dumps(arr)
+    js = json.dumps(arr,separators=(',',':'))
     print js
     return js

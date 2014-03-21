@@ -37,6 +37,17 @@ function style(feature) {
     };
 }
 
+function sastyle(feature){
+    return {
+        fillColor: '#ffffff',
+        fillOpacity: 0.0,
+
+        color: '#e2e200',
+        opacity: 0.9,
+        weight: 0.8
+    };
+}
+
 function bboxStyle(feature){
     return {
         fillColor: '#ffffff',
@@ -45,7 +56,7 @@ function bboxStyle(feature){
         color: '#5f3764',
         opacity: 0.8,
         weight: 0.8
-    }
+    };
 }
 
 function makePopup(feature,layer){
@@ -59,10 +70,12 @@ function makePopup(feature,layer){
 
 layers = {
     dem_fishnet: L.geoJson(null,{onEachFeature:makePopup,style:style}).addTo(map),
-    lidar_bbox: L.geoJson(null,{onEachFeature:makePopup,style:bboxStyle})
+    lidar_bbox: L.geoJson(null,{onEachFeature:makePopup,style:bboxStyle}),
+    sa_fishnet: L.geoJson(null,{onEachFeature:makePopup,style:sastyle})
 };
 
 L.control.layers(null,layers).addTo(map);
 
 $.getJSON("./js/dem_fishnets.py",function(json){ layers.dem_fishnet.addData(json); });
-$.getJSON("./js/lidar_bbox.json",function(json){ layers.lidar_bbox.addData(json); });
+$.getJSON("./js/lidar_bbox.py",function(json){ layers.lidar_bbox.addData(json); });
+//$.getJSON("./js/sa_fishnets.py",function(json){ layers.dem_fishnet.addData(json); });
