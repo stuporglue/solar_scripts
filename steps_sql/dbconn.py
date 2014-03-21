@@ -7,9 +7,11 @@ import psycopg2
 import psycopg2.extras
 from psycopg2.extensions import adapt
 import ConfigParser
+import os
 
 config = ConfigParser.ConfigParser()
-config.readfp(open('dbconn.cfg'))
+conffile = os.path.dirname(os.path.realpath(__file__)) + '\dbconn.cfg'
+config.readfp(open(conffile))
 
 try:
     conn = psycopg2.connect(host = config.get('auth','host'), port = config.get('auth','port'), database = config.get('auth','dbname'), user = config.get('auth','user'), password = config.get('auth','pass'))
