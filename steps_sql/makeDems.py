@@ -129,6 +129,12 @@ def blast2dem(demid,lidarlist,line,buffersize,outputdir):
             os.unlink(outputdir + "\\" + filename)
         return False
 
+    if not os.path.isfile(outputdir + "\\" + filename):
+        sys.stdout.write("\t\t\t" + output)
+        sys.stdout.write("\t\t\tExpected to find output file " + filename + ", but didn't")
+        print "\n\t\t" + command 
+        return False
+
     # Remove empty files. Will happen where fishnet is off the map
     # 750703 -- 748kb files when they're solid black (also no results)
     if re.match('.*bounding box. skipping.*',output,re.DOTALL) or int(os.stat(outputdir + "\\" + filename).st_size) == 750703:
