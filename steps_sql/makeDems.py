@@ -145,9 +145,13 @@ def blast2dem(demid,lidarlist,line,buffersize,outputdir):
     return True
 
 res = dbconn.run_query(reserveQuery).fetchall()
+count = 0
+average = 0;
 while len(res) > 0:
     for row in res:
-        sys.stdout.write("\nRunning blast2dem for row " + str(row['id']) + "\t\t\t")
+        count += 1
+
+        sys.stdout.write("Running blast2dem for row " + str(row['id']) + "\t\t\t")
         starttime = time.time()
 
         tmp = tempfile.NamedTemporaryFile(delete=False)
@@ -160,12 +164,15 @@ while len(res) > 0:
 
         stoptime = time.time()
 
+        average = (average * (count - 1) + stoptime - starttime) / count
+
+
         if blasted:
-            print "DONE! (" + str((stoptime - starttime)) + " seconds)"
+            print "DONE! (" + str((stoptime - starttime)) + " seconds, running avg:" + str(average) + ")"
             os.unlink(tmp.name)
             dbconn.run_query(completeQuery.replace("DEMID",str(row['id'])).replace('NEWSTATE','2'))
         else:
-            print "Error! (" + str((stoptime - starttime)) + " seconds)"
+            print "Error! (" + str((stoptime - starttime)) + " seconds, running avg:" + str(average) + ")"
             dbconn.run_query(completeQuery.replace("DEMID",str(row['id'])).replace('NEWSTATE','-3'))
 
     res = dbconn.run_query(reserveQuery).fetchall()
