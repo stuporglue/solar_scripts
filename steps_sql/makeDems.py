@@ -99,9 +99,17 @@ def blast2dem(demid,lidarlist,line,buffersize,outputdir):
 
 
     # Check output
-    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-    output,error = process.communicate()
-    returncode = process.poll()
+    try:
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        output,error = process.communicate()
+        returncode = process.poll()
+    except:
+        e = sys.exc_info()[0]
+        sys.stdout.write("\t\t\t" + str(e))
+        print "\n\t\t" + command 
+        if os.path.isfile(outputdir + "\\" + filename):
+            os.unlink(outputdir + "\\" + filename)
+        return False
 
     #print "RETCODE: " + str(returncode)
     #print "ERROR: " + str(error)

@@ -12,6 +12,7 @@ html,body,#map {
     z-index: 1000;
     text-align: center;
     width: 100%;
+    text-shadow: 0 0 0.2em #FFF, 0 0 0.2em #FFF, 0 0 0.2em #FFF;
 }
 
 .nthree { background-color: #ff0000; }
