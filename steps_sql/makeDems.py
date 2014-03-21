@@ -160,7 +160,12 @@ while len(res) > 0:
             tmp.write(lidar['lasfile'] + "\n")
         tmp.close()
 
-        blasted = blast2dem(demid=row['id'],lidarlist=tmp.name,line=[str(int(row['xmin'])),str(int(row['ymin'])),str(int(row['xmax'])),str(int(row['ymax']))],buffersize=buffersize,outputdir=outputdir)
+        try:
+            blasted = blast2dem(demid=row['id'],lidarlist=tmp.name,line=[str(int(row['xmin'])),str(int(row['ymin'])),str(int(row['xmax'])),str(int(row['ymax']))],buffersize=buffersize,outputdir=outputdir)
+        except:   
+            e = sys.exc_info()[0]
+            print "\t\t\t" + str(e)
+            blasted = False
 
         stoptime = time.time()
 
