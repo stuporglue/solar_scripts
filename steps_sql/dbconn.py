@@ -13,10 +13,11 @@ config.readfp(open('dbconn.cfg'))
 
 try:
     conn = psycopg2.connect(host = config.get('auth','host'), port = config.get('auth','port'), database = config.get('auth','dbname'), user = config.get('auth','user'), password = config.get('auth','pass'))
+    conn.autocommit=True
 
     # Create a server-side cursor so we don't end up with all records in memory at once
     # http://wiki.postgresql.org/wiki/Using_psycopg2_with_PostgreSQL 
-    cur = conn.cursor('dbconn', cursor_factory=psycopg2.extras.RealDictCursor,scrollable=True)
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 except Exception as e:
     print "Unable to connect to the database"
     print e
@@ -26,10 +27,10 @@ def rewind():
     return cur.scroll(0,mode='absolute')
 
 def run_query(q):
-    print "Query: " + q
     try:
         cur.execute(q)
     except Exception as exp:
-        print exp;
-
+        print "Exception"
+        print exp
+        
     return cur

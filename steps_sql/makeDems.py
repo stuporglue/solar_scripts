@@ -1,13 +1,15 @@
 # Continue fetching fishnet tiles that haven't been processed yet
 # Fetch the list of lidar files for those tiles and process them
 
-# DEMs fishnet squares have 4 states in the database: 
+# DEM states
+# -3 -- errors encountered
+# -2 -- areas calculated to have no tiles within 100m
 # -1 -- square has no intersecting lidar bboxes within 100m
 # 0 -- available to process
 # 1 -- reserved, but not complete
 # 2 -- completed
 
-import dbconn,sys
+import dbconn,sys,os,subprocess,re
 
 buffersize  = 50
 
@@ -17,7 +19,22 @@ if len(sys.argv) != 2:
 
 outputdir   = sys.argv[1]
 
-reserveQuery = """UPDATE dem_fishnets dem SET state=1 WHERE dem.id in (SELECT id FROM dem_fishnets WHERE state=0 LIMIT 1) RETURNING id, ST_XMin(the_geom) as xmin, ST_YMin(the_geom) as ymin, ST_XMax(the_geom) as xmax, ST_YMax(the_geom) as ymax"""
+# Radiate outwards from Blegen Hall
+reserveQuery = """
+    UPDATE dem_fishnets dem 
+    SET state=1 
+    WHERE dem.id in (
+        SELECT id FROM dem_fishnets WHERE state=0 
+        ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(480815.0,4979852.6),32615))
+        LIMIT 1
+    ) 
+    RETURNING 
+    id, 
+    ST_XMin(the_geom) as xmin, 
+    ST_YMin(the_geom) as ymin, 
+    ST_XMax(the_geom) as xmax, 
+    ST_YMax(the_geom) as ymax
+"""
 
 lidarlist = """
     SELECT bbox.* FROM 
@@ -31,7 +48,7 @@ lidarlist = """
 completeQuery = """
     UPDATE 
     dem_fishnets dem
-    SET state=2
+    SET state=NEWSTATE
     WHERE
     dem.id=DEMID
     """
@@ -42,7 +59,6 @@ completeQuery = """
 # outputdir is the directory where the files should be saved
 def blast2dem(demid,lidar,line,buffersize,outputdir):
 
-    line = linestr.strip().split(',')
     outputfile = outputdir + '\\' + '_'.join(line) + '.img'
     cmd = ['blast2dem']
 
@@ -77,7 +93,7 @@ def blast2dem(demid,lidar,line,buffersize,outputdir):
     command = ' '.join(cmd)
 
     #print "-----------------------------------------"
-    print command
+    #print command
 
     # Check output
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
@@ -91,32 +107,41 @@ def blast2dem(demid,lidar,line,buffersize,outputdir):
     # Print errors
     if error != None:
         sys.stdout.write("\t\t\t" + error)
-        os.unlink(outputdir + "\\" + filename)
-        return
+        if os.path.isfile(outputdir + "\\" + filename):
+            os.unlink(outputdir + "\\" + filename)
+        return False
     if returncode != 0:
         sys.stdout.write("\t\t\t" + output)
-        os.unlink(outputdir + "\\" + filename)
-        return
+        if os.path.isfile(outputdir + "\\" + filename):
+            os.unlink(outputdir + "\\" + filename)
+        return False
 
     # Remove empty files. Will happen where fishnet is off the map
     # 750703 -- 748kb files when they're solid black (also no results)
-    if skipping.match(output) or int(os.stat(outputdir + "\\" + filename).st_size) == 750703:
+    if re.match('.*bounding box. skipping.*',output,re.DOTALL) or int(os.stat(outputdir + "\\" + filename).st_size) == 750703:
         sys.stdout.write("\t\t\tNo data found, not saving tile.")
         os.unlink(outputfile)
-        return
+        return True
 
-res = dbconn.run_query(reserveQuery)
+    return True
+
+res = dbconn.run_query(reserveQuery).fetchall()
 while len(res) > 0:
-    print "Continuing"
     for row in res:
-        os.stdout.write("\nRunning blast2dem for row " + str(row['id']))
+        sys.stdout.write("\nRunning blast2dem for row " + str(row['id']) + "\t\t\t")
 
         lidars = []
-        lidares = dbconn.run_query(lidarlist.replace("DEMID",str(row['id'])))
+        lidares = dbconn.run_query(lidarlist.replace("DEMID",str(row['id']))).fetchall()
         for lidar in lidares:
             lidars.append(lidar['lasfile'])
 
-        blast2dem(row['id'],lidars,(row['xmin'],row['ymin'],row['xmax'],row['ymax']),buffersize,outputdir)
-        dbconn.run_query(completeQuery.replace("DEMID",str(row['id'])))
+        blasted = blast2dem(row['id'],lidars,[str(int(row['xmin'])),str(int(row['ymin'])),str(int(row['xmax'])),str(int(row['ymax']))],buffersize,outputdir)
 
-    res = dbconn.run_query(reserveQuery)
+        if blasted:
+            print "DONE!"
+            dbconn.run_query(completeQuery.replace("DEMID",str(row['id'])).replace('NEWSTATE','2'))
+        else:
+            print "Error"
+            dbconn.run_query(completeQuery.replace("DEMID",str(row['id'])).replace('NEWSTATE','-3'))
+
+    res = dbconn.run_query(reserveQuery).fetchall()
