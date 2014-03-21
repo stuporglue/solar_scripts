@@ -1,0 +1,3 @@
+# Let us treat our python scripts as CGI scripts
+AddHandler cgi-script .cgi .py
+Options +ExecCGI

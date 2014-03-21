@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Solar Progress</title>
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div id='h1'>
+    <h1>Solar DSM Generation Progress</h1>
+</div>
+<div id='map'>Loading your map...</div>
+
+<div id='legend'>
+<ul>
+    <li class='nthree'>blast2dem error</li>
+    <li class='ntwo'>No lidar files within 100m</li>
+    <li class='notprocessed'>Not yet processed</li>
+    <li class='processing'>Processing now</li>
+    <li class='success'>Success!</li>
+</ul>
+</div>
+
+
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
+<script src='js/solar.js'></script>
+</body>
+</html>
