@@ -4,9 +4,8 @@
 # Note that the_geom is in EPSG:4326
 # DB structure: the_geom (polygon),lasfile (varchar),processed (bool)
 
-datasrid = 32615
+datasrid = 26915
 maxinserts = 1000
-cartodbname = 'stuporglue'
 tablename = 'lidar_bbox'
 
 import sys,os,re,math,glob,subprocess

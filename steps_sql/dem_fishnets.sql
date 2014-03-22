@@ -26,7 +26,7 @@ SET default_with_oids = false;
 
 CREATE TABLE dem_fishnets (
     id integer NOT NULL,
-    the_geom geometry(Polygon,32615),
+    the_geom geometry(Polygon,26915),
     state integer DEFAULT 0
 );
 

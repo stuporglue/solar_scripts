@@ -8,7 +8,7 @@ import sys, os, subprocess, glob, re, math
 from subprocess import call
 from distutils.spawn import *
 
-datasrid = 32615
+datasrid = 26915
 maxinserts = 1000
 tablename = "dem_fishnets"
 

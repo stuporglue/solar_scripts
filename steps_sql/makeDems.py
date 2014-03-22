@@ -25,7 +25,7 @@ reserveQuery = """
     SET state=1 
     WHERE dem.id in (
         SELECT id FROM dem_fishnets WHERE state=0 
-        ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(480815.0,4979852.6),32615))
+        ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(480815.0,4979852.6),26915))
         LIMIT 1
     ) 
     RETURNING 
@@ -154,6 +154,9 @@ while len(res) > 0:
         sys.stdout.write("Running blast2dem for row " + str(row['id']) + "\t\t\t")
         starttime = time.time()
 
+        # The long lists of files was making the command too long for PowerShell to handle 
+        # so instead we write the list of file names to a temp file and delete the file
+        # when we're done
         tmp = tempfile.NamedTemporaryFile(delete=False)
         lidares = dbconn.run_query(lidarlist.replace("DEMID",str(row['id']))).fetchall()
         for lidar in lidares:
