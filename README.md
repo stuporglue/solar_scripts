@@ -53,6 +53,7 @@ Insert the resulting sql file into a PostGIS table with the following definition
 
 4. Let PostGIS figure rule out any fishnet tiles which don't cover any lidar bounding boxes. Run: 
 
+
     UPDATE dem_fishnets 
     SET state=-1 
     WHERE id in (
@@ -63,16 +64,20 @@ Insert the resulting sql file into a PostGIS table with the following definition
         ST_Intersects(ST_Buffer(dem.the_geom,100),bbox.the_geom)
     )
 
+
 5. makeDems.py -- Run as many instances of makeDems.py as you can to create DEM files. blast2dem only uses one cores. As a rule of thumb, run n+1 processes where n is the number of cores you have. 
+
 
     python.exe .\steps_sql\makeDems.py D:\SolarResourceData\MinnesotaLiDAR_LAZ D:\SolarResourceData\MinnesotaLiDAR_DSM\fishnet_tiles 
 
-5. dem2mosaic.py -- Convert DSMs to raster mosaic
+6. dem2mosaic.py -- Convert DSMs to raster mosaic
 
     Create directory D:\SolarResourceData\MinnesotaLiDAR_DSM\fishnet_mosaic
+
     python.exe .\steps_sql\dems2mosaic.py D:\SolarResourceData\MinnesotaLiDAR_DSM\fishnet_tiles D:\SolarResourceData\MinnesotaLiDAR_DSM\fishnet_tiles D:\SolarResourceData\MinnesotaLiDAR_DSM\fishnet_mosaic data\MN_Fishnet\MN_Fishnet.prj
 
-6. Create a fishnet across coordinates which will work with Solar Analyist, ideally with nice round numbers. Input the fishnet into PostGIS in a table like this:
+7. Create a fishnet across coordinates which will work with Solar Analyist, ideally with nice round numbers. Input the fishnet into PostGIS in a table like this:
+
 
     CREATE TABLE sa_fishnets
     (
@@ -89,8 +94,10 @@ Insert the resulting sql file into a PostGIS table with the following definition
 
 7. batchSolarAnalyst.py -- Runs solar analyst on each sa_fishnet
 
+
     tbd
 
 8. Mosaic solar raster tiles to single image?
+
 
     tbd
