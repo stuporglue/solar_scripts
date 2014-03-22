@@ -12,8 +12,11 @@ We started with roughly 1Tb of .laz files, available from the state of [Minnesot
 
 Below is the current pseudo code
 
-Pseudo Code 
------------
+How We're Doing It
+----------------------
+
+These aren't instructions so much as what we're doing. Your data will probably break in different ways than ours. This code is unsupported, so here's what worked for us, hopefully it'll put you on the right path. 
+
  
 1. lasIndex.py -- Create las index files (.lax) for all the laz files.
 
