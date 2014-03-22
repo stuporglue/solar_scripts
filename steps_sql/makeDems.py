@@ -13,11 +13,12 @@ import dbconn,sys,os,subprocess,re,tempfile,time
 
 buffersize  = 50
 
-if len(sys.argv) != 2:
-    print "Usage fishnet2blast.py <outputdir>"
+if len(sys.argv) != 3:
+    print "Usage fishnet2blast.py <basedir> <outputdir>"
     exit(-1)
 
-outputdir   = sys.argv[1]
+basedir = sys.argv[1]
+outputdir   = sys.argv[2]
 
 # Radiate outwards from Blegen Hall
 reserveQuery = """
@@ -160,7 +161,7 @@ while len(res) > 0:
         tmp = tempfile.NamedTemporaryFile(delete=False)
         lidares = dbconn.run_query(lidarlist.replace("DEMID",str(row['id']))).fetchall()
         for lidar in lidares:
-            tmp.write(lidar['lasfile'] + "\n")
+            tmp.write(basedir + '\\' + lidar['lasfile'] + "\n")
         tmp.close()
 
         try:
