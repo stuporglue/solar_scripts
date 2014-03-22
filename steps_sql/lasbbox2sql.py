@@ -65,7 +65,7 @@ for qdir in glob.glob(basepath + '\\q*'):
                 smaxx = str(int(math.ceil(float(matches.group(1)))))
                 smaxy = str(int(math.ceil(float(matches.group(2)))))
 
-        tablerows.append("('" + lazfile + "',"+ "ST_MakeEnvelope(" + sminx + "," + sminy + "," + smaxx + "," + smaxy + "," + str(datasrid) + "))")
+        tablerows.append("('" + lazfile.replace(basepath,'') + "',"+ "ST_MakeEnvelope(" + sminx + "," + sminy + "," + smaxx + "," + smaxy + "," + str(datasrid) + "))")
 
         if len(tablerows) >= maxinserts:
             f.write(insertIntoCartoDB(tablerows))
