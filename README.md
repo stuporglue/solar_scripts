@@ -17,12 +17,16 @@ How We're Doing It
 
 These aren't instructions so much as what we're doing. Your data will probably break in different ways than ours. This code is unsupported, so here's what worked for us, hopefully it'll put you on the right path. 
 
+1. Configure the database connection file. 
+   
+   Copy dbconn.cfg.example to dbconn.cfg and replace the existing values with the values for your PostGIS database connection.
+
  
-1. lasIndex.py -- Create las index files (.lax) for all the laz files.
+2. lasIndex.py -- Create las index files (.lax) for all the laz files.
 
         python.exe .\steps_sql\lasIndex.py D:\SolarResourceData\MinnesotaLiDAR_LAZ
 
-2. lasbbox2sql.py -- Create an .sql file to insert into PostGIS with buffered bounding boxes for all las. This script uses the laz header info and doesn't calculate the actual exact extent (hence the buffer)
+3. lasbbox2sql.py -- Create an .sql file to insert into PostGIS with buffered bounding boxes for all las. This script uses the laz header info and doesn't calculate the actual exact extent (hence the buffer)
 
         python.exe .\steps_sql\lasbbox2sql.py D:\SolarResourceData\MinnesotaLiDAR_LAZ data\insert_lidar_bboxes.sql
 
@@ -38,7 +42,7 @@ These aren't instructions so much as what we're doing. Your data will probably b
         ) WITH ( OIDS=FALSE);
         CREATE INDEX bbox_gist ON lidar_bbox USING gist (the_geom);
 
-3. las2fishnetSql.py -- Create a fishnet across coordinates which will work with blast2dem, ideally with nice round numbers.
+4. las2fishnetSql.py -- Create a fishnet across coordinates which will work with blast2dem, ideally with nice round numbers.
 
         python.exe .\steps_sql\las2fishnetSql.py D:\SolarResourceData\MinnesotaLiDAR_LAZ 3 10000 data\dem_fishnet.sql
 
@@ -54,7 +58,7 @@ These aren't instructions so much as what we're doing. Your data will probably b
         CREATE INDEX dem_gist ON dem_fishnets USING gist (the_geom);
         CREATE INDEX dem_state_index ON dem_fishnets USING btree (state);
 
-4. Let PostGIS figure rule out any fishnet tiles which don't cover any lidar bounding boxes. Run: 
+5. Let PostGIS figure rule out any fishnet tiles which don't cover any lidar bounding boxes. Run: 
 
         UPDATE dem_fishnets 
         SET state=-1 
@@ -67,17 +71,17 @@ These aren't instructions so much as what we're doing. Your data will probably b
         )
 
 
-5. makeDems.py -- Run as many instances of makeDems.py as you can to create DEM files. blast2dem only uses one cores. As a rule of thumb, run n+1 processes where n is the number of cores you have. 
+6. makeDems.py -- Run as many instances of makeDems.py as you can to create DEM files. blast2dem only uses one cores. As a rule of thumb, run n+1 processes where n is the number of cores you have. 
 
         python.exe .\steps_sql\makeDems.py D:\SolarResourceData\MinnesotaLiDAR_LAZ D:\SolarResourceData\MinnesotaLiDAR_DSM\fishnet_tiles 
 
-6. dem2mosaic.py -- Convert DSMs to raster mosaic
+7. dem2mosaic.py -- Convert DSMs to raster mosaic
 
     Create directory D:\SolarResourceData\MinnesotaLiDAR_DSM\fishnet_mosaic
 
         python.exe .\steps_sql\dems2mosaic.py D:\SolarResourceData\MinnesotaLiDAR_DSM\fishnet_tiles D:\SolarResourceData\MinnesotaLiDAR_DSM\fishnet_tiles D:\SolarResourceData\MinnesotaLiDAR_DSM\fishnet_mosaic data\MN_Fishnet\MN_Fishnet.prj
 
-7. Create a fishnet across coordinates which will work with Solar Analyist, ideally with nice round numbers. Input the fishnet into PostGIS in a table like this:
+8. Create a fishnet across coordinates which will work with Solar Analyist, ideally with nice round numbers. Input the fishnet into PostGIS in a table like this:
 
         CREATE TABLE sa_fishnets
         (
@@ -91,12 +95,18 @@ These aren't instructions so much as what we're doing. Your data will probably b
         CREATE INDEX sa_fishnets_geom_gist ON sa_fishnets USING gist (the_geom);
         CREATE INDEX sa_fishnets_state ON sa_fishnets USING btree (state);
 
-7. batchSolarAnalyst.py -- Runs solar analyst on each sa_fishnet
+9. batchSolarAnalyst.py -- Runs solar analyst on each sa_fishnet
 
+        tbd
+
+10. Mosaic solar raster tiles to single image?
 
         tbd
 
-8. Mosaic solar raster tiles to single image?
 
+Web Progress Viewer
+------------------
 
-        tbd
+A progress viewer website is available in this repository. You will need to configure your server to treat .py files as CGI executables. It uses Leaflet.js to display the progress.
+ 
+!["Fishnets being processed outwards from Blegen Hall"](https://raw.githubusercontent.com/stuporglue/solar_scripts/master/web/dev/img/DSM_Progress_clipped.png "Fishnets being processed outwards from Blegen Hall")
