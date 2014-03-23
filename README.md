@@ -71,9 +71,11 @@ These aren't instructions so much as what we're doing. Your data will probably b
         )
 
 
-6. makeDems.py -- Run as many instances of makeDems.py as you can to create DEM files. blast2dem only uses one cores. As a rule of thumb, run n+1 processes where n is the number of cores you have. 
+6. makeDems.py -- Run as many instances of makeDems.py as you can to create DEM files. blast2dem only uses one cores. Balance disk IO, memory and CPU usage to get the best average times you can.
 
         python.exe .\steps_sql\makeDems.py D:\SolarResourceData\MinnesotaLiDAR_LAZ D:\SolarResourceData\MinnesotaLiDAR_DSM\fishnet_tiles 
+        
+        !["Running 8 instances and getting nearly 100% CPU usage"](https://raw.githubusercontent.com/stuporglue/solar_scripts/master/web/dev/img/Parallell_DSM_Creation.png "Running 8 instances and getting nearly 100% CPU usage")
 
 7. dem2mosaic.py -- Convert DSMs to raster mosaic
 
