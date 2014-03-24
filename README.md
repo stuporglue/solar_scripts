@@ -1,7 +1,8 @@
 Solar Scripts 
 =============
 
-Warning: Probably none of this works right now
+Warning: This is a work in progress and some things are likely broken
+
 These are scripts developed for GIS 8890, a directed studies course in the MGIS program at the University of Minnesota
 
 The goal of our project is to create a state-wide solar suitability map from lidar data.
@@ -10,7 +11,6 @@ We settled on using lastools and ArcGIS (via ArcPy) for this project.
 
 We started with roughly 1Tb of .laz files, available from the state of [Minnesota's FTP site](http://www.mngeo.state.mn.us/chouse/elevation/lidar.html).
 
-Below is the current pseudo code
 
 How We're Doing It
 ----------------------
@@ -21,6 +21,12 @@ These aren't instructions so much as what we're doing. Your data will probably b
    
    Copy dbconn.cfg.example to dbconn.cfg and replace the existing values with the values for your PostGIS database connection.
 
+        [auth]
+        host = localhost
+        port = 5432
+        user = solaruser
+        pass = solarpass
+        dbname = solar
  
 2. lasIndex.py -- Create las index files (.lax) for all the laz files.
 
@@ -83,7 +89,11 @@ These aren't instructions so much as what we're doing. Your data will probably b
 
         python.exe .\steps_sql\dems2mosaic.py D:\SolarResourceData\MinnesotaLiDAR_DSM\fishnet_tiles D:\SolarResourceData\MinnesotaLiDAR_DSM\fishnet_tiles D:\SolarResourceData\MinnesotaLiDAR_DSM\fishnet_mosaic data\MN_Fishnet\MN_Fishnet.prj
 
-8. Create a fishnet across coordinates which will work with Solar Analyist, ideally with nice round numbers. Input the fishnet into PostGIS in a table like this:
+8. QA Step ? 
+
+    Should we have a QA step here to visually inspect the mosaic in Arc and see that the DSMs look good before we run Solar Analyst? 
+
+9. Create a fishnet across coordinates which will work with Solar Analyist, ideally with nice round numbers. Input the fishnet into PostGIS in a table like this:
 
         CREATE TABLE sa_fishnets
         (
@@ -109,6 +119,8 @@ These aren't instructions so much as what we're doing. Your data will probably b
 Web Progress Viewer
 ------------------
 
-A progress viewer website is available in this repository. You will need to configure your server to treat .py files as CGI executables. It uses Leaflet.js to display the progress.
+A progress viewer website is available in this repository. You will need to configure your server to treat .py files as CGI executables. If you are using Apache and .htaccess overrides are enabled, the included web/.htaccess file will do this for you.
+
+It uses Leaflet.js to display the progress.
  
 !["Fishnets being processed outwards from Blegen Hall"](https://raw.githubusercontent.com/stuporglue/solar_scripts/master/web/dev/img/DSM_Progress_clipped.png "Fishnets being processed outwards from Blegen Hall")
