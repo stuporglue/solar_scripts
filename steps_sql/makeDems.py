@@ -83,7 +83,7 @@ def blast2dem(demid,lidarlist,line,buffersize,outputdir):
     # Data Filtering 
     cmd.append('-first_only')
     cmd.append('-elevation')
-    cmd.append('-drop_class 1 2 3')
+    cmd.append('-drop_class 0 1 7 12')
 
     # Output parameters
     cmd.append('-v')
