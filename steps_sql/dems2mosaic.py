@@ -55,11 +55,11 @@ arcpy.CreateMosaicDataset_management(gdbname, mdname, prjfile, noband,
 # http://resources.arcgis.com/en/help/main/10.2/index.html#//001700000085000000
 
 mdname = gdbname + "/" + mdname
-rastype = "Raster Dataset"  # http://resources.arcgis.com/en/help/main/10.2/index.html#//009t0000000v000000
+rastype = "ERDAS IMAGINE"  # http://resources.arcgis.com/en/help/main/10.2/index.html#//009t0000000v000000
 
 updatecs = "NO_CELL_SIZES"
 updatebnd = "NO_BOUNDARY"
-updateovr = "NO_OVERVIEWS"
+updateovr = "UPDATE_OVERVIEWS"
 maxlevel = "0"  # pyramid level
 maxcs = ""
 maxdim = ""
