@@ -21,6 +21,10 @@ totalRecords = 0
 for k in obj:
     totalRecords += obj[k]['count']
 
+for x in range(-3,3):
+    if not x in obj:
+        obj[x] = {'count':0,'avg':0}
+
 
 print """
 <!DOCTYPE HTML>
