@@ -24,9 +24,9 @@ import sys, os, arcpy, time, dbconn
 
 ##if len(sys.argv) != 4:
 ##    print "Usage batchSolarAnalyst.py <basedir> <mosaicdem> <outputdir>\
-##\n\t<basedir> - file path to the base directory, for arcpy workspace environment\
-##\n\t<mosaicdem> - file name for mosaic raster – if not in the <basedir> include path\
-##\n\t<outputdir> - folder location to save output files to"
+        ##\n\t<basedir> - file path to the base directory, for arcpy workspace environment\
+        ##\n\t<mosaicdem> - file name for mosaic raster – if not in the <basedir> include path\
+        ##\n\t<outputdir> - folder location to save output files to"
 ##    exit(-1)
 
 
@@ -70,26 +70,26 @@ out_direct_duration_raster = '' # optional output - direct duration
 # Database queries to manage processing
 reserveQuery = """
 UPDATE sa_fishnets sa
-SET state=1
-WHERE sa.id in (
-SELECT id FROM sa_fishnets WHERE state=0
-ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(480815.0,4979852.6),26915))
-LIMIT 1
-)
+    SET state=1
+    WHERE sa.id in (
+        SELECT id FROM sa_fishnets WHERE state=0
+        ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(480815.0,4979852.6),26915))
+        LIMIT 1
+    )
 RETURNING
-id,
-ST_XMin(the_geom) as xmin,
-ST_YMin(the_geom) as ymin,
-ST_XMax(the_geom) as xmax,
-ST_YMax(the_geom) as ymax,
-ST_Y(ST_Transform(ST_CENTROID(the_geom),4326)) AS lat
+    id,
+    ST_XMin(the_geom) as xmin,
+    ST_YMin(the_geom) as ymin,
+    ST_XMax(the_geom) as xmax,
+    ST_YMax(the_geom) as ymax,
+    ST_Y(ST_Transform(ST_CENTROID(the_geom),4326)) AS lat
 """
 
 completeQuery = """
     UPDATE 
     sa_fishnets sa
     SET state=NEWSTATE,
-    time = x
+    time=RUNTIME
     WHERE
     sa.id=DEMID
 """
@@ -102,7 +102,7 @@ average = 0
 while len(res) > 0:
     for row in res:
         count += 1
-        
+
         sys.stdout.write("Running Area Solar Radiation for row " + str(row['id']))
         start_time = time.clock()
 
@@ -117,7 +117,7 @@ while len(res) > 0:
         arcpy.env.extent = arcpy.sa.Extent(x_min, y_min, x_max, y_max)
 
         # run solar analyst
-        
+
         try:
             solar_raster = arcpy.sa.AreaSolarRadiation(in_surface_raster, latitude, sky_size, time_configuration, day_interval, hour_interval, each_interval, z_factor, slope_aspect_input_type, calculation_directions, zenith_divisions, azimuth_divisions, diffuse_model_type, diffuse_proportion, transmissivity, out_direct_radiation_raster, out_diffuse_radiation_raster, out_direct_duration_raster)
             # clip to feature extent and saves output
@@ -126,8 +126,8 @@ while len(res) > 0:
 
             # print "Saving unclipped version to: " + out_path + 'SRR_' + str(row['id']) + "_unclipped.img"            
             # solar_raster.save(out_path + 'SRR_' + str(row['id']) + "_unclipped.img")
-            
-            print "Saving clipped version to: " + clipped_solar_raster            
+
+            # print "Saving clipped version to: " + clipped_solar_raster            
             clipped = arcpy.Clip_management(solar_raster, envelope, clipped_solar_raster) #, '', '-3.402823e+038', '', True)
             solarWorked = True
 
@@ -135,31 +135,29 @@ while len(res) > 0:
             e = sys.exc_info()[0]
             print "\t\t\t" + str(e)
             solarWorked = False
-            
+
         # calculate average tile calculation time
         end_time = time.clock()
         time_run = end_time - start_time
         average = (average * (count - 1) + time_run) / count
-        
+
         if solarWorked:
             print "DONE! (" + str((time_run)) + " seconds, running avg:" + str(average) + ")"
-            dbconn.run_query(completeQuery.replace("DEMID",str(row['id'])).replace('NEWSTATE','2').replace('x', str(time_run)))
+            dbconn.run_query(completeQuery.replace("DEMID",str(row['id'])).replace('NEWSTATE','2').replace('RUNTIME', str(time_run)))
         else:
-            print "Error! (" + str((stoptime - starttime)) + " seconds, running avg:" + str(average) + ")"
+            print "Error! (" + str((time_run)) + " seconds, running avg:" + str(average) + ")"
             dbconn.run_query(completeQuery.replace("DEMID",str(row['id'])).replace('NEWSTATE','-3'))
 
 
-        print "Clipped returned: " + str(clipped)
+        # print "Clipped returned: " + str(clipped)
 
         # save raster object
         #clipped_solar_raster.save(out_path + 'SRR_' + featureID + '.img')
-        
 
-        
         # print summary information to command prompt
-        result = "Processed fishnet section {0} in {1} seconds, with an overall average time of {2}".format(str(row['id']), round(time_run, 2), round(average, 2))
-        print result
-        
+        # result = "Processed fishnet section {0} in {1} seconds, with an overall average time of {2}".format(str(row['id']), round(time_run, 2), round(average, 2))
+        # print result
+
     res = dbconn.run_query(reserveQuery).fetchall()
 
 del res
