@@ -20,7 +20,7 @@
 # clippedOutput = clip outputRaster back to polygon size
 # write clippedOutput file to designated directory?
 
-import sys, os, arcpy, time, dbconn
+import sys, os, arcpy, time, dbconn, tempfile, shutil
 
 ##if len(sys.argv) != 4:
 ##    print "Usage batchSolarAnalyst.py <basedir> <mosaicdem> <outputdir>\
@@ -38,9 +38,19 @@ out_path = sys.argv[3]
 
 # Check out spatial analyst and set ArcGIS environment settings
 arcpy.CheckOutExtension("spatial")
-arcpy.env.workspace = ws
-arcpy.SetLogHistory(True)
+workspace = tempfile.mkdtemp(prefix='results_',dir=ws)
+if not os.path.isdir(workspace):
+    print "ERROR! Couldn't create workspace directory " + workspace
+    exit()
 
+arcpy.env.workspace = workspace
+
+# Make a temp directory to avoid the FATAL ERROR (INFADI)  MISSING DIRECTORY error 
+# NOTE: Delete this later (last line of script)
+# Seems like dir should be made in here, but it's not working.... tempfile.gettempdir()
+arcpy.env.scratchWorkspacea = tempfile.mkdtemp(prefix='temp_',dir=ws + '\\temp\\')
+
+arcpy.SetLogHistory(True)
 
 # buffer distance for input processing extent
 buff = 50
@@ -103,7 +113,7 @@ while len(res) > 0:
     for row in res:
         count += 1
 
-        sys.stdout.write("Running Area Solar Radiation for row " + str(row['id']))
+        sys.stdout.write("Running Area Solar Radiation for row " + str(row['id']) + "    ")
         start_time = time.clock()
 
         # add buffer/subtract distance to extent boundaries
@@ -124,6 +134,10 @@ while len(res) > 0:
             envelope = "{0} {1} {2} {3}".format(int(row['xmin']), int(row['ymin']), int(row['xmax']), int(row['ymax']))
             clipped_solar_raster = out_path + 'SRR_' + str(row['id']) + '.img' # what raster format do we want???
 
+            # Delete our output file if it already exists, effectively overwriting it
+            if os.path.isfile(clipped_solar_raster):
+                os.unlink(clipped_solar_raster)
+
             # print "Saving unclipped version to: " + out_path + 'SRR_' + str(row['id']) + "_unclipped.img"            
             # solar_raster.save(out_path + 'SRR_' + str(row['id']) + "_unclipped.img")
 
@@ -131,6 +145,9 @@ while len(res) > 0:
             clipped = arcpy.Clip_management(solar_raster, envelope, clipped_solar_raster) #, '', '-3.402823e+038', '', True)
             solarWorked = True
 
+        except 'arcgisscripting.ExecuteError':
+            print "\t\t\t" + arcpy.GetMessages(3)
+            solarWorked = False
         except:   
             e = sys.exc_info()[0]
             print "\t\t\t" + str(e)
@@ -146,7 +163,7 @@ while len(res) > 0:
             dbconn.run_query(completeQuery.replace("DEMID",str(row['id'])).replace('NEWSTATE','2').replace('RUNTIME', str(time_run)))
         else:
             print "Error! (" + str((time_run)) + " seconds, running avg:" + str(average) + ")"
-            dbconn.run_query(completeQuery.replace("DEMID",str(row['id'])).replace('NEWSTATE','-3'))
+            dbconn.run_query(completeQuery.replace("DEMID",str(row['id'])).replace('NEWSTATE','-3').replace('RUNTIME','-1'))
 
 
         # print "Clipped returned: " + str(clipped)
@@ -160,4 +177,5 @@ while len(res) > 0:
 
     res = dbconn.run_query(reserveQuery).fetchall()
 
-del res
+# We have to manually unlink temp dirs created by mkdtemp
+shutil.rmtree(arcpy.env.scratchWorkspacea)
