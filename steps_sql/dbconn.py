@@ -44,6 +44,16 @@ def send_query(q):
     geojson = array_to_geojson(cur)
     return send_array_as_json(geojson)
 
+def cursor_to_object(rows,idfield):
+    ret = {}
+    for row in rows:
+        tmpobj = {}
+        for k in row.keys():
+            tmpobj[k] = row[k]
+        ret[row[idfield]] = tmpobj
+
+    return ret
+
 
 def array_to_geojson(rows):
     # Build an empty GeoJSON FeatureCollection object, then fill it from the database results
