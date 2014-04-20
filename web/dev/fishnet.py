@@ -47,9 +47,11 @@ border: 1px solid black;
 
 <h2>Current Status</h2>
 <table>
-<tr><th>Rows In Progress</th><td>""" + str(obj[1]['count']) + """</td></tr>
+<tr><th>Total Rows</th><td>""" + str(totalRecords) + """
 <tr><th>Completed Rows</th><td>""" + str(obj[2]['count']) + """</td></tr>
+<tr><th>Rows In Progress</th><td>""" + str(obj[1]['count']) + """</td></tr>
 <tr><th>Failed Rows</th><td>""" + str(obj[-3]['count']) + """</td></tr>
+<tr><th>Rows Left</th><td>""" + str(obj[0]['count']) + """
 <tr><th>Percent Complete</th><td>""" + str(float(obj[2]['count']) / float(totalRecords) * 100.0) + """</td></tr>
 <tr><th>Average time</th><td>""" + str(obj[2]['avg']) + """</td></tr>
 </table>
