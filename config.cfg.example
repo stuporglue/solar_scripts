@@ -1,0 +1,39 @@
+[postgres]
+host = localhost
+port = 5432
+user = solaruser
+pass = solarpass
+dbname = solar
+maxinserts = 1000
+lidar_bbox_table = 'lidar_bbox'
+dem_fishnet_table = 'dem_fishnets'
+sa_fishnet_table = 'sa_fishnets'
+
+[data]
+srid = 26915
+prj_file = "26915.prj"
+dem_fishnet_size = 10000
+dem_fishnet_rounding_digits = 3
+las_file_buffer_size = 50
+lastools_path = "C:\lastools\bin"
+
+[makeDems]
+starting_x = 480815.0
+starting_y = 4979852.6
+lidar_buffer = 100
+
+[blast2dem]
+additionalparameters = "-first_only -elevation -drop_class 0 1 7 12"
+
+[locations]
+lasDir = 
+demOutputDir =
+solarRasterOutputDir = 
+tempDir = 
+
+[arcgis]
+workspace = 
+solarMosaicDemName = 
+
+
+

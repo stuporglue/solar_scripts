@@ -8,11 +8,13 @@ import sys, os, subprocess, glob, re, math
 from subprocess import call
 from distutils.spawn import *
 
+# TODO: Get these from config file
 datasrid = 26915
 maxinserts = 1000
 tablename = "dem_fishnets"
 
 
+# TODO: Get these from config file
 ################ Usage check and argument assigning
 if len(sys.argv) != 5:
     print "Usage: las2fishnet.py <input directory> <round digits> <fishnetsize> <output fishnet file>"
@@ -111,6 +113,7 @@ print "Bounding box: (" + str(rminx) + ',' + str(rminy) + '),(' + str(rmaxx) + '
 # 
 # print range(rminx,rmaxx,fishnetsize)
 
+# TODO: Create and insert these values into the database
 f = open(outputfile,'w')
 tablerows = []
 queryprefix = "INSERT INTO " + tablename + " (the_geom) VALUES "

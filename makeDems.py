@@ -17,6 +17,7 @@ if len(sys.argv) != 3:
     print "Usage fishnet2blast.py <basedir> <outputdir>"
     exit(-1)
 
+# TODO: Use config file
 basedir = sys.argv[1]
 outputdir   = sys.argv[2]
 
@@ -26,6 +27,7 @@ reserveQuery = """
     SET state=1 
     WHERE dem.id in (
         SELECT id FROM dem_fishnets WHERE state=0 
+        -- TODO: Use config file
         ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(480815.0,4979852.6),26915))
         LIMIT 1
     ) 
@@ -43,6 +45,7 @@ lidarlist = """
     lidar_bbox bbox
     WHERE dem.id=DEMID
     AND 
+    -- TODO: Use config file
     ST_Intersects(ST_Buffer(dem.the_geom,100),bbox.the_geom)
 """
 
@@ -83,6 +86,7 @@ def blast2dem(demid,lidarlist,line,buffersize,outputdir):
     # Data Filtering 
     cmd.append('-first_only')
     cmd.append('-elevation')
+    # TODO: Use config
     cmd.append('-drop_class 0 1 7 12')
 
     # Output parameters

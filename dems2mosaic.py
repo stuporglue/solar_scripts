@@ -8,6 +8,7 @@ from distutils.spawn import *
 from arcpy import *
 
 
+# TODO: Use conig file
 ################ Usage check and argument assigning
 if len(sys.argv) != 4:
     print "Usage: build_mosaic.py <input directory> <workspace/output dir> <.prj file>"

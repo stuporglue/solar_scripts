@@ -31,12 +31,14 @@ import sys, os, arcpy, time, dbconn, tempfile, shutil
 
 
 # Define workspace and input datasets
+# TODO: Fetch these params from the config
 ws = sys.argv[1]
 inMosaicDEM = sys.argv[2]
 out_path = sys.argv[3]
 
 
 # Check out spatial analyst and set ArcGIS environment settings
+# TODO: Move these tests to the config file
 arcpy.CheckOutExtension("spatial")
 workspace = tempfile.mkdtemp(prefix='results_',dir=ws)
 if not os.path.isdir(workspace):

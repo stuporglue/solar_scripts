@@ -4,6 +4,7 @@
 # Note that the_geom is in EPSG:4326
 # DB structure: the_geom (polygon),lasfile (varchar),processed (bool)
 
+# TODO: Fetch these values from the config file
 datasrid = 26915
 maxinserts = 1000
 tablename = 'lidar_bbox'
@@ -27,6 +28,8 @@ minline = re.compile('\s*min x y z:\s*(.*)\s+(.*)\s+.*')
 maxline = re.compile('\s*max x y z:\s*(.*)\s+(.*)\s+.*')
 
 ################ Insert an array into CartoDB
+# TODO: Get rid of cartodb references
+# TODO: Just insert this into the database
 def insertIntoCartoDB(tablerows):
     queryprefix = "INSERT INTO " + tablename + " (lasfile,the_geom) VALUES "
     query = queryprefix + ",".join(tablerows) + ";\n"
