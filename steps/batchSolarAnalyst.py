@@ -20,7 +20,15 @@
 # clippedOutput = clip outputRaster back to polygon size
 # write clippedOutput file to designated directory?
 
-import sys, os, arcpy, time, dbconn, tempfile, shutil
+rt sys, os
+
+# Get path to solar_scripts-master
+d = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+if d + "\\steps_sql" not in sys.path:
+    sys.path.append(d + "\\steps_sql")
+
+import arcpy, time, dbconn, tempfile, shutil
 
 ##if len(sys.argv) != 4:
 ##    print "Usage batchSolarAnalyst.py <basedir> <mosaicdem> <outputdir>\
