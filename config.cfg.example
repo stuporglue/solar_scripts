@@ -10,7 +10,7 @@ dbname = solar
 # Postgres query options
 [projection]
 srid = 26915
-prj_file = "26915.prj"
+prj_file = 26915.prj
 
 [processing]
 starting_x = 480815.0
@@ -22,12 +22,12 @@ dem_fishnet_size = 10000
 dem_fishnet_rounding_digits = 3
 
 [blast2dem]
-additional_parameters = "-first_only -elevation -drop_class 0 1 7 12"
+additional_parameters = -first_only -elevation -drop_class 0 1 7 12
 
 [paths]
-las_dir =  "D:\Whatever\lazFiles"
-dem_output_dir =
-solar_raster_output_dir = 
-temp_dir = 
-lastools_bin_dir = "C:\lastools\bin"
-workspace = 
+las_dir = D:\SolarResourceData
+dem_output_dir = D:\MichaelTest\DemOutput
+solar_raster_output_dir = D:\MichaelTest\SolarRasterOutput
+temp_dir = D:\MichaelTest\TempDir
+lastools_bin_dir = C:\lastools\bin
+workspace = D:\MichaelTest\ArcWorkSpace

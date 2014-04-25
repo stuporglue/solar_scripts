@@ -10,7 +10,10 @@ config.readfp(open(conffile))
 
 # Read in the user settings
 conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'config.cfg'
+
+if not os.path.isfile(conffile):
+    print "The conf file: " + conffile + " is required"
+    raise
+
 config.readfp(open(conffile))
-
-
 os.environ["PATH"] += os.pathsep + config.get('paths','lastools_bin_dir') 
