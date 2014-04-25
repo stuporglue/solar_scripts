@@ -1,32 +1,85 @@
 Solar Scripts 
 =============
 
-Warning: This is a work in progress and some things are likely broken
-
-These are scripts developed for GIS 8890, a directed studies course in the MGIS program at the University of Minnesota
+These are scripts developed for GIS 8890, a directed studies course in the [MGIS 
+program at the University of Minnesota](http://mgis.umn.edu/).
 
 The goal of our project is to create a state-wide solar suitability map from lidar data.
 
-We settled on using lastools and ArcGIS (via ArcPy) for this project. 
+We settled on using [LASTools](http://www.cs.unc.edu/~isenburg/lastools/) and ArcGIS (via ArcPy) for this project. 
 
 We started with roughly 1Tb of .laz files, available from the state of [Minnesota's FTP site](http://www.mngeo.state.mn.us/chouse/elevation/lidar.html).
+
+Our output is a raster mosaic of Solar Analyst results.
 
 
 How We're Doing It
 ----------------------
 
-These aren't instructions so much as what we're doing. Your data will probably break in different ways than ours. This code is unsupported, so here's what worked for us, hopefully it'll put you on the right path. 
+Your data will probably break in different ways than ours, but here's what
+worked for us. 
 
-1. Configure the database connection file. 
+We used a PostGIS database for storing and accessing metadata quickly. We used
+three tables. 
+
+1. The Lidar BBox Table -- A table with the bounding box and name of all the lidar files
+2. The DEM Fishnet Table -- A table with a fishnet that covered our state for use in creating DEM raster files
+3. The Spatial Analyst Fishnet Table -- A table with a fishnet covering the state for use in creating the Solar Analyst raster files
+
+We calculated the bounding box for each LiDAR .laz file and inserted it into the 
+Lidar BBox table. 
+We then used the DEM Fishnet Table as a sort of job queue. By running an intersect 
+between the Lidar BBox table and one DEM fishnet square at a time we could use just the
+.laz files we needed to generate the output DEM file. By buffering the DEM fishnet and 
+limiting the output area of the DEM we were able to ensure that our output raster images
+were all coincident. 
+
+When all DEM files were generated (about another Tb of data) we created a raster mosaic
+of them, and used that as input to Solar Analyst. Once again, using a fishnet as a job
+queue we ran Solar Analyst on the extent of each Spatial Analyst Fishnet square and 
+saved the resulting image to a directory. 
+
+When all Solar Analyst tasks were complete, we added the images to a new raster mosaic
+which we could then use for data analysis or other purposes.
+
+
+Preparation
+-----------
+
+You can run configTest.py to see if your configuration is good. If it is, you can skip this section!
+
+You will need:
+
+ * .las or .laz files
+ * LASTools
+ * ArcPy / Python
+ * The psycopg2 Python module
+ * The simplejson Python module
+ * A PostGIS database
+
+If the version of Python that ships with ArcGIS is not in your default %PATH% you can 
+either edit the system path, or run all of the scripts from within the Windows PowerShell
+which is linked here. If you are going to use PowerShell and ArcGIS's Python is not 
+located at C:\Python27\ArcGIS10.2, you will need to edit POWERSHELL_SETTINGS.ps1 to set
+the correct path.
+
+Instructions
+------------
+
+1. Copy and edit the configuration file
+
+    WARNING: WORK IN PROGRESS
    
-   Copy dbconn.cfg.example to dbconn.cfg and replace the existing values with the values for your PostGIS database connection.
+   Copy config.cfg.example to config.cfg and replace the existing values with 
+   the values for your PostGIS database connection.
 
-        [auth]
-        host = localhost
-        port = 5432
-        user = solaruser
-        pass = solarpass
-        dbname = solar
+
+
+2. Create a PostGIS database
+
+    Optionally create a schema for this project. 
+
+    Run the createDatabaseTables.py script to create the appropriate tables and indexes.
  
 2. lasIndex.py -- Create las index files (.lax) for all the laz files.
 

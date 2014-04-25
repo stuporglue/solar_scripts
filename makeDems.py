@@ -10,10 +10,7 @@
 # 2 -- completed
 
 import dbconn,sys,os,subprocess,re,tempfile,time
-
-config = ConfigParser.ConfigParser()
-conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'config.cfg'
-config.readfp(open(conffile))
+from config import *
 
 buffersize  = config.get('buffers','dem_selection_buffer')
 basedir = config.get('paths','las_dir')

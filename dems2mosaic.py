@@ -3,13 +3,10 @@
 #
 # python dems2mosaic.py "C:\workspace\dems" "C:\workspace" "26915.prj"
 
-import arcpy,sys,os,ConfigParser
+import arcpy,sys,os
+from config import *
 from distutils.spawn import *
 from arcpy import *
-
-config = ConfigParser.ConfigParser()
-conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'config.cfg'
-config.readfp(open(conffile))
 
 ################ Usage check and argument assigning
 if len(sys.argv) != 4:

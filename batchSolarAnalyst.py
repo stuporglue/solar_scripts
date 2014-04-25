@@ -22,11 +22,8 @@
 #   clippedOutput = clip outputRaster back to polygon size
 #   write clippedOutput file to designated directory
 
-import sys,os,arcpy,time,dbconn,tempfile,shutil,ConfigParser,datetime
-
-config = ConfigParser.ConfigParser()
-conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'config.cfg'
-config.readfp(open(conffile))
+import sys,os,arcpy,time,dbconn,tempfile,shutil,datetime
+from config import *
 
 # Define workspace and input datasets
 ws = config.get('arcgis','workspace')

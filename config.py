@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+
+import ConfigParser,os
+
+config = ConfigParser.ConfigParser()
+
+# Read in the defaults
+conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'defaults.cfg'
+config.readfp(open(conffile))
+
+# Read in the user settings
+conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'config.cfg'
+config.readfp(open(conffile))
+
+
+os.environ["PATH"] += os.pathsep + config.get('paths','lastools_bin_dir') 

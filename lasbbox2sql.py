@@ -4,13 +4,10 @@
 # Note that the_geom is in EPSG:4326
 # DB structure: the_geom (polygon),lasfile (varchar),processed (bool)
 
-import sys,os,re,math,glob,subprocess,ConfigParser,dbconn
+import sys,os,re,math,glob,subprocess,dbconn
 from subprocess import call
 from distutils.spawn import *
-
-config = ConfigParser.ConfigParser()
-conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'config.cfg'
-config.readfp(open(conffile))
+from config import *
 
 os.environ["PATH"] += os.pathsep + config.get('paths','lastools_bin_dir') 
 

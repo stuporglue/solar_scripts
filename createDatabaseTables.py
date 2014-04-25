@@ -1,10 +1,7 @@
 # TODO: Create statements for database
 
-import os,dbconn,ConfigParser
-
-config = ConfigParser.ConfigParser()
-conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'config.cfg'
-config.readfp(open(conffile))
+import os,dbconn
+from config import *
 
 schema = config.get('postgres','schema')
 
