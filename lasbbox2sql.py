@@ -1,39 +1,33 @@
-# For every las file, get its bounding box and insert it into CartoDB
+# For every las file, get its bounding box and insert it into Database
 # This could easily be adapter to any other SQL server
 # 
 # Note that the_geom is in EPSG:4326
 # DB structure: the_geom (polygon),lasfile (varchar),processed (bool)
 
-# TODO: Fetch these values from the config file
-datasrid = 26915
-maxinserts = 1000
-tablename = 'lidar_bbox'
-
-import sys,os,re,math,glob,subprocess
+import sys,os,re,math,glob,subprocess,ConfigParser,dbconn
 from subprocess import call
 from distutils.spawn import *
 
-if len(sys.argv) != 3:
-    print "Usage: lasbbox2sql.py <input directory> <output file.sql>"
-    exit(-1);
-else:
-    basepath = sys.argv[1]
-    outputfile = sys.argv[2]
+config = ConfigParser.ConfigParser()
+conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'config.cfg'
+config.readfp(open(conffile))
 
-if find_executable('lasinfo.exe') == None:
-    print "Please make sure that lasinfo.exe is in your PATH environment"
-    exit(-1)
+os.environ["PATH"] += os.pathsep + config.get('paths','lastools_bin_dir') 
+
+datasrid = config.get('data','srid')
+maxinserts = int(config.get('postgres','maxinserts'))
+tablename = config.get('postgres','lidar_bbox_table')
+
+basepath     = config.get('paths','lasDir')
 
 minline = re.compile('\s*min x y z:\s*(.*)\s+(.*)\s+.*')
 maxline = re.compile('\s*max x y z:\s*(.*)\s+(.*)\s+.*')
 
-################ Insert an array into CartoDB
-# TODO: Get rid of cartodb references
-# TODO: Just insert this into the database
-def insertIntoCartoDB(tablerows):
+################ Insert an array into Database
+def insertIntoDatabase(tablerows):
     queryprefix = "INSERT INTO " + tablename + " (lasfile,the_geom) VALUES "
     query = queryprefix + ",".join(tablerows) + ";\n"
-    return query
+    return dbconn.run_query(query)
 
 ################ Running our functions on input data
 # Max and Floor coordinates to the nearest int outwards
@@ -41,12 +35,8 @@ def insertIntoCartoDB(tablerows):
 tablerows = []
 sql = ""
 
-f = open(outputfile,'w')
-for qdir in glob.glob(basepath + '\\q*'):
-    if not os.path.isdir(qdir):
-        continue
-    print "Processing " + qdir
-    for lazfile in glob.glob(qdir + "\\laz\\*.laz"):
+for (root, subFolders, files) in os.walk(basepath):
+    for lazfile in files:
         command = "lasinfo.exe -i " + lazfile + " -merged -no_check"
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
         output,error = process.communicate()
@@ -61,6 +51,7 @@ for qdir in glob.glob(basepath + '\\q*'):
         for line in output.split("\n"):
             matches = minline.match(line.strip())
             if matches:
+                # Round/buffer outward so we are sure to include everything
                 sminx = str(int(math.floor(float(matches.group(1)))))
                 sminy = str(int(math.floor(float(matches.group(2)))))
             matches = maxline.match(line.strip())
@@ -71,11 +62,10 @@ for qdir in glob.glob(basepath + '\\q*'):
         tablerows.append("('" + lazfile.replace(basepath,'') + "',"+ "ST_MakeEnvelope(" + sminx + "," + sminy + "," + smaxx + "," + smaxy + "," + str(datasrid) + "))")
 
         if len(tablerows) >= maxinserts:
-            f.write(insertIntoCartoDB(tablerows))
+            insertIntoDatabase(tablerows)
             tablerows = []
 
 if len(tablerows) > 0:
-    f.write(insertIntoCartoDB(tablerows))
+    insertIntoDatabase(tablerows)
 
-f.close()
 print "Done"

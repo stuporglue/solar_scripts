@@ -3,17 +3,16 @@
 # walz0053@umn.edu
 #
 
-import sys, os, subprocess, glob
+import sys, os, subprocess, glob, ConfigParser, re
 from distutils.spawn import *
 
-################ Usage check and argument assigning
-# TODO: Use config file
-if len(sys.argv) != 2:
-    print "Usage: lasIndex.py <input directory>"
-    print "The intput directory should have the q**** directories in it, eg. c:\base\path\to\q***"
-    exit(-1)
-else:
-    basepath = sys.argv[1]
+config = ConfigParser.ConfigParser()
+conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'config.cfg'
+config.readfp(open(conffile))
+
+basepath = config.get('paths','lasDir')
+
+os.environ["PATH"] += os.pathsep + config.get('paths','lastools_bin_dir') 
 
 if find_executable('lasindex') == None:
     print "Please make sure that lasindex.exe is in your PATH environment"
@@ -24,7 +23,9 @@ if not os.path.isdir(basepath):
     exit(-1)
 
 ################ Running our functions on input data
-# TODO: Just walk the directory and find all laz or las files
-for curdir in glob.glob(basepath + '\\q*'):
-    lazfiles = glob.glob(curdir + '\\laz\\*.laz')
-    process = subprocess.Popen("lazindex.exe \\laz\\*.laz -cores 8", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+# Walk the directory and handle media files
+lasOrLaz = re.compile("(las|laz)$")
+for (root, subFolders, files) in os.walk(basepath):
+    for onelasfile in files:
+        if lasOrLaz.match(onelasfile):
+            process = subprocess.Popen("lazindex.exe \\laz\\*.laz -cores " + config.get('data','cores'), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)

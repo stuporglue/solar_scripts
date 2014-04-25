@@ -1,39 +1,53 @@
+# TODO: Make sure that all variables are actually used
 [postgres]
 host = localhost
 port = 5432
 user = solaruser
 pass = solarpass
 dbname = solar
-maxinserts = 1000
+max_inserts = 1000
 lidar_bbox_table = 'lidar_bbox'
 dem_fishnet_table = 'dem_fishnets'
 sa_fishnet_table = 'sa_fishnets'
 
-[data]
+[buffers]
+dem_selection_buffer = 50
+las_extent_buffer = 50
+lidar_buffer = 100
+sa_processing_buffer = 50
+
+[projection]
 srid = 26915
 prj_file = "26915.prj"
-dem_fishnet_size = 10000
-dem_fishnet_rounding_digits = 3
-las_file_buffer_size = 50
-lastools_path = "C:\lastools\bin"
 
-[makeDems]
+[processing]
 starting_x = 480815.0
 starting_y = 4979852.6
-lidar_buffer = 100
+cores = 8
+
+[makeDems]
+dem_fishnet_size = 10000
+dem_fishnet_rounding_digits = 3
 
 [blast2dem]
-additionalparameters = "-first_only -elevation -drop_class 0 1 7 12"
+additional_parameters = "-first_only -elevation -drop_class 0 1 7 12"
 
-[locations]
-lasDir = 
-demOutputDir =
-solarRasterOutputDir = 
-tempDir = 
+[paths]
+las_dir =  "D:\Whatever\lazFiles"
+dem_output_dir =
+solar_raster_output_dir = 
+temp_dir = 
+lastools_bin_dir = "C:\lastools\bin"
 
 [arcgis]
 workspace = 
-solarMosaicDemName = 
+dem_mosaic_name = "MN_DEM.gdb"
+solar_mosaic_name = 
 
-
-
+[solar_analyst]
+sky_size = 100
+calculation_directions = 32
+zenith_divisions = 8
+azimuth_divisions = 8
+diffuse_proportion = 0.3
+transmissivity = 0.5

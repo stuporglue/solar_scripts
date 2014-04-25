@@ -5,42 +5,38 @@
 # Description: Generate solar radiation tiles for all areas in a shapefile
 # ---------------------------------------------------------------------------
 
-# "Calculate solar radiation over a very large area by using a Raster Dataset and using a shapefile of polygons to choose which areas
-# to use as extents when calculating areas for.
-# Also accepts a buffer size which will be applied to each polygon for use in the extent.
+# Calculate solar radiation over a very large area by using a Raster Dataset as the source
+# and using a database with a fishnet of polygons to choose which areas to use as extents.
+# 
+# Also takes a buffer size which will be applied to each polygon for use in the extent so that
+# output rasters will have edges that match
+
 # The final image output will be clipped back to the size of the input polygon
-# print "USAGE batchSolarAnalyst.py <Workspace path> <Mosaic Raster Dataset> <Output path>"
 
 
 # Pseudo Code!
-# For eachPolygon in Shapefile:
-# bufferedPollygon = buffer polygon by bufferAmount
-# set extent env to bufferedPolygon
-# outputRaster = AreaSolarRadiation(rasterDataset)
-# clippedOutput = clip outputRaster back to polygon size
-# write clippedOutput file to designated directory?
+# For eachPolygon in fishnet where state is 0:
+#   bufferedPollygon = buffer polygon by bufferAmount
+#   set extent env to bufferedPolygon
+#   outputRaster = AreaSolarRadiation(rasterDataset)
+#   clippedOutput = clip outputRaster back to polygon size
+#   write clippedOutput file to designated directory
 
-import sys, os, arcpy, time, dbconn, tempfile, shutil
+import sys,os,arcpy,time,dbconn,tempfile,shutil,ConfigParser
 
-##if len(sys.argv) != 4:
-##    print "Usage batchSolarAnalyst.py <basedir> <mosaicdem> <outputdir>\
-        ##\n\t<basedir> - file path to the base directory, for arcpy workspace environment\
-        ##\n\t<mosaicdem> - file name for mosaic raster – if not in the <basedir> include path\
-        ##\n\t<outputdir> - folder location to save output files to"
-##    exit(-1)
-
+config = ConfigParser.ConfigParser()
+conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'config.cfg'
+config.readfp(open(conffile))
 
 # Define workspace and input datasets
-# TODO: Fetch these params from the config
-ws = sys.argv[1]
-inMosaicDEM = sys.argv[2]
-out_path = sys.argv[3]
+ws = config.get('arcgis','workspace')
+inMosaicDEM = config.get('arcgis','demMosaicName')
+out_path = config.get('paths','solarRasterOutputDir')
 
 
 # Check out spatial analyst and set ArcGIS environment settings
-# TODO: Move these tests to the config file
 arcpy.CheckOutExtension("spatial")
-workspace = tempfile.mkdtemp(prefix='results_',dir=ws)
+workspace = tempfile.mkdtemp(prefix='results_',dir=config.get('paths','temp_dir'))
 if not os.path.isdir(workspace):
     print "ERROR! Couldn't create workspace directory " + workspace
     exit()
@@ -50,30 +46,31 @@ arcpy.env.workspace = workspace
 # Make a temp directory to avoid the FATAL ERROR (INFADI)  MISSING DIRECTORY error 
 # NOTE: Delete this later (last line of script)
 # Seems like dir should be made in here, but it's not working.... tempfile.gettempdir()
-arcpy.env.scratchWorkspacea = tempfile.mkdtemp(prefix='temp_',dir=ws + '\\temp\\')
+arcpy.env.scratchWorkspacea = tempfile.mkdtemp(prefix='temp_',dir=config.get('paths','temp_dir'))
 
 arcpy.SetLogHistory(True)
 
 # buffer distance for input processing extent
-buff = 50
-
+buff = config.get('buffers','sa_processing_buffer')
 
 # Define Solar analyst variables
 in_surface_raster = inMosaicDEM
 latitude = '' # generate in for loop from feature attribute
-sky_size = 100 # min is 100
+sky_size = int(config.get('solar_analyst','sky_size')) # min is 100
+
+# TODO: Change 2014 to current year
 time_configuration = arcpy.sa.TimeWholeYear(2014) # arcgis time object set for all of 2014
 day_interval = '' # with whole year analysis default is calendar month
 hour_interval = '' # default is 0.5
 each_interval = '' # default is no interval (i.e. a single band for whole year)
 z_factor = '' # meters for both units, defaults to 1
 slope_aspect_input_type = 'FROM_DEM' # how slope/aspect are determined
-calculation_directions = 32 # number of directions used when calculating viewshed (multiple of 8 only)
-zenith_divisions = 8 # number of divisions to create sky sectors in sky map
-azimuth_divisions = 8 # number of divisions to create sky sectors in sky map
+calculation_directions = int(config.get('solar_analyst','calculation_directions')) # number of directions used when calculating viewshed (multiple of 8 only)
+zenith_divisions = int(config.get('solar_analyst','zenith_divisions')) # number of divisions to create sky sectors in sky map
+azimuth_divisions = int(config.get('solar_analyst','azimuth_divisions')) # number of divisions to create sky sectors in sky map
 diffuse_model_type = 'UNIFORM_SKY' # type of diffuse radiation model
-diffuse_proportion = 0.3 # proportion of radiation that is diffuse
-transmissivity = 0.5 # fraction of radiation passing through atmosphere (0.5 for generally clear sky)
+diffuse_proportion = float(config.get('solar_analyst','diffuse_proportion')) # proportion of radiation that is diffuse
+transmissivity = float(config.get('solar_analyst','transmissivity')) # fraction of radiation passing through atmosphere (0.5 for generally clear sky)
 out_direct_radiation_raster = '' # optional output - direct radiation
 out_diffuse_radiation_raster = '' # optional output - diffuse radiation
 out_direct_duration_raster = '' # optional output - direct duration
@@ -81,11 +78,11 @@ out_direct_duration_raster = '' # optional output - direct duration
 
 # Database queries to manage processing
 reserveQuery = """
-UPDATE sa_fishnets sa
+UPDATE """ + config.get('postgres','sa_fishnet_table') + """ sa
     SET state=1
     WHERE sa.id in (
-        SELECT id FROM sa_fishnets WHERE state=0
-        ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(480815.0,4979852.6),26915))
+        SELECT id FROM """ + config.get('postgres','sa_fishnet_table') + """ WHERE state=0
+        ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(""" + config.get('processing','starting_x') + """,""" + config.get('processing','starting_y') + """),""" + config.get('projection','srid') + """))
         LIMIT 1
     )
 RETURNING
@@ -99,7 +96,7 @@ RETURNING
 
 completeQuery = """
     UPDATE 
-    sa_fishnets sa
+    """ + config.get('postgres','sa_fishnet_table') + """ sa
     SET state=NEWSTATE,
     time=RUNTIME
     WHERE
@@ -129,7 +126,6 @@ while len(res) > 0:
         arcpy.env.extent = arcpy.sa.Extent(x_min, y_min, x_max, y_max)
 
         # run solar analyst
-
         try:
             solar_raster = arcpy.sa.AreaSolarRadiation(in_surface_raster, latitude, sky_size, time_configuration, day_interval, hour_interval, each_interval, z_factor, slope_aspect_input_type, calculation_directions, zenith_divisions, azimuth_divisions, diffuse_model_type, diffuse_proportion, transmissivity, out_direct_radiation_raster, out_diffuse_radiation_raster, out_direct_duration_raster)
             # clip to feature extent and saves output
@@ -140,10 +136,6 @@ while len(res) > 0:
             if os.path.isfile(clipped_solar_raster):
                 os.unlink(clipped_solar_raster)
 
-            # print "Saving unclipped version to: " + out_path + 'SRR_' + str(row['id']) + "_unclipped.img"            
-            # solar_raster.save(out_path + 'SRR_' + str(row['id']) + "_unclipped.img")
-
-            # print "Saving clipped version to: " + clipped_solar_raster            
             clipped = arcpy.Clip_management(solar_raster, envelope, clipped_solar_raster) #, '', '-3.402823e+038', '', True)
             solarWorked = True
 
@@ -167,17 +159,8 @@ while len(res) > 0:
             print "Error! (" + str((time_run)) + " seconds, running avg:" + str(average) + ")"
             dbconn.run_query(completeQuery.replace("DEMID",str(row['id'])).replace('NEWSTATE','-3').replace('RUNTIME','-1'))
 
-
-        # print "Clipped returned: " + str(clipped)
-
-        # save raster object
-        #clipped_solar_raster.save(out_path + 'SRR_' + featureID + '.img')
-
-        # print summary information to command prompt
-        # result = "Processed fishnet section {0} in {1} seconds, with an overall average time of {2}".format(str(row['id']), round(time_run, 2), round(average, 2))
-        # print result
-
     res = dbconn.run_query(reserveQuery).fetchall()
 
 # We have to manually unlink temp dirs created by mkdtemp
 shutil.rmtree(arcpy.env.scratchWorkspacea)
+shutil.rmtree(arcpy.env.workspace)

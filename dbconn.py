@@ -10,9 +10,8 @@ import ConfigParser
 import os
 import simplejson as json
 
-# TODO: Use shared config file
 config = ConfigParser.ConfigParser()
-conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'dbconn.cfg'
+conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'config.cfg'
 config.readfp(open(conffile))
 
 try:

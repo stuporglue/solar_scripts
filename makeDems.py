@@ -11,24 +11,21 @@
 
 import dbconn,sys,os,subprocess,re,tempfile,time
 
-buffersize  = 50
+config = ConfigParser.ConfigParser()
+conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'config.cfg'
+config.readfp(open(conffile))
 
-if len(sys.argv) != 3:
-    print "Usage fishnet2blast.py <basedir> <outputdir>"
-    exit(-1)
-
-# TODO: Use config file
-basedir = sys.argv[1]
-outputdir   = sys.argv[2]
+buffersize  = config.get('buffers','dem_selection_buffer')
+basedir = config.get('paths','las_dir')
+outputdir = config.get('paths','dem_output_dir')
 
 # Radiate outwards from Blegen Hall
 reserveQuery = """
-    UPDATE dem_fishnets dem 
+    UPDATE """ + config.get('postgres','dem_fishnet_table') + """ dem 
     SET state=1 
     WHERE dem.id in (
-        SELECT id FROM dem_fishnets WHERE state=0 
-        -- TODO: Use config file
-        ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(480815.0,4979852.6),26915))
+        SELECT id FROM """ + config.get('postgres','dem_fishnet_table') + """ WHERE state=0 
+        ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(""" + config.get('processing','starting_x') + """,""" + config.get('processing','starting_y') + """),""" + config.get('projection','srid') + """))
         LIMIT 1
     ) 
     RETURNING 
@@ -41,17 +38,15 @@ reserveQuery = """
 
 lidarlist = """
     SELECT bbox.* FROM 
-    dem_fishnets dem,
+    """ + config.get('postgres','dem_fishnet_table') + """ dem,
     lidar_bbox bbox
     WHERE dem.id=DEMID
     AND 
-    -- TODO: Use config file
-    ST_Intersects(ST_Buffer(dem.the_geom,100),bbox.the_geom)
+    ST_Intersects(ST_Buffer(dem.the_geom,""" + str(buffersize) + """),bbox.the_geom)
 """
 
 completeQuery = """
-    UPDATE 
-    dem_fishnets dem
+    UPDATE """ + config.get('postgres','dem_fishnet_table') + """ dem,
     SET state=NEWSTATE
     WHERE
     dem.id=DEMID
@@ -84,10 +79,7 @@ def blast2dem(demid,lidarlist,line,buffersize,outputdir):
     cmd.append('-nrows ' + str(int(line[3]) - int(line[1])))
 
     # Data Filtering 
-    cmd.append('-first_only')
-    cmd.append('-elevation')
-    # TODO: Use config
-    cmd.append('-drop_class 0 1 7 12')
+    cmd.append(config.get('blast2dem','additional_parameters'))
 
     # Output parameters
     cmd.append('-v')
@@ -97,11 +89,6 @@ def blast2dem(demid,lidarlist,line,buffersize,outputdir):
     cmd.append('-odir ' + outputdir)
 
     command = ' '.join(cmd)
-
-    # print "-----------------------------------------"
-    # print command
-    # return 
-
 
     # Check output
     try:
@@ -115,10 +102,6 @@ def blast2dem(demid,lidarlist,line,buffersize,outputdir):
         if os.path.isfile(outputdir + "\\" + filename):
             os.unlink(outputdir + "\\" + filename)
         return False
-
-    #print "RETCODE: " + str(returncode)
-    #print "ERROR: " + str(error)
-    #print "OUTPUT: " + str(output)
 
     # Print errors
     if error != None:
@@ -162,7 +145,7 @@ while len(res) > 0:
         # The long lists of files was making the command too long for PowerShell to handle 
         # so instead we write the list of file names to a temp file and delete the file
         # when we're done
-        tmp = tempfile.NamedTemporaryFile(delete=False)
+        tmp = tempfile.NamedTemporaryFile(delete=False,dir=config.get('paths','temp_dir'))
         lidares = dbconn.run_query(lidarlist.replace("DEMID",str(row['id']))).fetchall()
         for lidar in lidares:
             tmp.write(basedir + '\\' + lidar['lasfile'] + "\n")
@@ -176,7 +159,6 @@ while len(res) > 0:
             blasted = False
 
         stoptime = time.time()
-
         average = (average * (count - 1) + stoptime - starttime) / count
 
 

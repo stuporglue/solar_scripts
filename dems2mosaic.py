@@ -3,12 +3,14 @@
 #
 # python dems2mosaic.py "C:\workspace\dems" "C:\workspace" "26915.prj"
 
-import arcpy, sys, os
+import arcpy,sys,os,ConfigParser
 from distutils.spawn import *
 from arcpy import *
 
+config = ConfigParser.ConfigParser()
+conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'config.cfg'
+config.readfp(open(conffile))
 
-# TODO: Use conig file
 ################ Usage check and argument assigning
 if len(sys.argv) != 4:
     print "Usage: build_mosaic.py <input directory> <workspace/output dir> <.prj file>"
@@ -16,25 +18,12 @@ if len(sys.argv) != 4:
     print "Contents in the output directory will be overwritten"
     exit(-1)
 else:
-    inpath = sys.argv[1]
-    workspacedir = sys.argv[2]
-    prjfile = sys.argv[3]
+    inpath = config.get('paths','dem_output_dir')
+    workspacedir = config.get('arcgis','workspace')
+    prjfile = config.get('projection','prj_file')
 
-if not os.path.isdir(inpath):
-    print "Input directory must be a directory and exist"
-    exit(-1)
-
-if not os.path.isdir(workspacedir):
-    print "Workspace directory must be a directory and exist"
-    exit(-1)
-
-if not os.path.isfile(prjfile):
-    print "You must provide a valid prj file"
-    exit(-1)
-    
 arcpy.env.workspace = workspacedir
-gdbname = "MN_DEM.gdb"
-
+gdbname = config.get('arcgis','dem_mosaic_name')
 
 # Create a File GeoDatabase to house the Mosaic dataset
 arcpy.CreateFileGDB_management(workspacedir, gdbname)
@@ -42,14 +31,13 @@ arcpy.CreateFileGDB_management(workspacedir, gdbname)
 # Create Mosaic Dataset
 # http://resources.arcgis.com/en/help/main/10.2/index.html#//00170000008n000000
 
-mdname = "MN_MD"
+mdname = "DEM_MOSAIC"
 noband = "1"
 pixtype = "32_BIT_FLOAT"
 pdef = "NONE"
 wavelength = ""
 
-arcpy.CreateMosaicDataset_management(gdbname, mdname, prjfile, noband, 
-                                     pixtype, pdef, wavelength)
+arcpy.CreateMosaicDataset_management(gdbname, mdname, prjfile, noband, pixtype, pdef, wavelength)
 
 
 # Add rasters to Mosaic Dataset
