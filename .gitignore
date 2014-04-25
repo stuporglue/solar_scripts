@@ -3,3 +3,4 @@
 *.swp
 file_list_blast*
 dbconn.cfg
+config.cfg

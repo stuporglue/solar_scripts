@@ -3,7 +3,7 @@
 
 import dbconn
 
-res = dbconn.run_query("SELECT true as working").fetchall()
+res = dbconn.run_query("SELECT PostGIS_full_version() AS pg").fetchall()
 
 print str(res)
 
@@ -18,4 +18,7 @@ if not os.path.isdir(basepath):
     print "Input directory must be a directory and exist"
     exit(-1)
 
+
+TODO: 
+Test that db has postgis enabled
 

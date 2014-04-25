@@ -21,10 +21,10 @@ outputdir = config.get('paths','dem_output_dir')
 
 # Radiate outwards from Blegen Hall
 reserveQuery = """
-    UPDATE """ + config.get('postgres','dem_fishnet_table') + """ dem 
+    UPDATE """ + config.get('postgres','schema') + "."  + config.get('postgres','dem_fishnet_table') + """ dem 
     SET state=1 
     WHERE dem.id in (
-        SELECT id FROM """ + config.get('postgres','dem_fishnet_table') + """ WHERE state=0 
+        SELECT id FROM """ + config.get('postgres','schema') + "."  + config.get('postgres','dem_fishnet_table') + """ WHERE state=0 
         ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(""" + config.get('processing','starting_x') + """,""" + config.get('processing','starting_y') + """),""" + config.get('projection','srid') + """))
         LIMIT 1
     ) 
@@ -38,7 +38,7 @@ reserveQuery = """
 
 lidarlist = """
     SELECT bbox.* FROM 
-    """ + config.get('postgres','dem_fishnet_table') + """ dem,
+    """ + config.get('postgres','schema') + "." + config.get('postgres','dem_fishnet_table') + """ dem,
     lidar_bbox bbox
     WHERE dem.id=DEMID
     AND 
@@ -46,7 +46,7 @@ lidarlist = """
 """
 
 completeQuery = """
-    UPDATE """ + config.get('postgres','dem_fishnet_table') + """ dem,
+    UPDATE """ + config.get('postgres','schema') + "." + config.get('postgres','dem_fishnet_table') + """ dem,
     SET state=NEWSTATE
     WHERE
     dem.id=DEMID

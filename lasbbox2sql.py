@@ -25,7 +25,7 @@ maxline = re.compile('\s*max x y z:\s*(.*)\s+(.*)\s+.*')
 
 ################ Insert an array into Database
 def insertIntoDatabase(tablerows):
-    queryprefix = "INSERT INTO " + tablename + " (lasfile,the_geom) VALUES "
+    queryprefix = "INSERT INTO " + config.get('postgres','schema') + "."  + tablename + " (lasfile,the_geom) VALUES "
     query = queryprefix + ",".join(tablerows) + ";\n"
     return dbconn.run_query(query)
 

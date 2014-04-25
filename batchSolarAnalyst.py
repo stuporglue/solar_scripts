@@ -22,7 +22,7 @@
 #   clippedOutput = clip outputRaster back to polygon size
 #   write clippedOutput file to designated directory
 
-import sys,os,arcpy,time,dbconn,tempfile,shutil,ConfigParser
+import sys,os,arcpy,time,dbconn,tempfile,shutil,ConfigParser,datetime
 
 config = ConfigParser.ConfigParser()
 conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'config.cfg'
@@ -59,7 +59,8 @@ latitude = '' # generate in for loop from feature attribute
 sky_size = int(config.get('solar_analyst','sky_size')) # min is 100
 
 # TODO: Change 2014 to current year
-time_configuration = arcpy.sa.TimeWholeYear(2014) # arcgis time object set for all of 2014
+
+time_configuration = arcpy.sa.TimeWholeYear(datetime.date.today().year) # arcgis time object set for all of 2014
 day_interval = '' # with whole year analysis default is calendar month
 hour_interval = '' # default is 0.5
 each_interval = '' # default is no interval (i.e. a single band for whole year)
@@ -78,7 +79,7 @@ out_direct_duration_raster = '' # optional output - direct duration
 
 # Database queries to manage processing
 reserveQuery = """
-UPDATE """ + config.get('postgres','sa_fishnet_table') + """ sa
+UPDATE """ + config.get('postgres','schema') + "." + config.get('postgres','sa_fishnet_table') + """ sa
     SET state=1
     WHERE sa.id in (
         SELECT id FROM """ + config.get('postgres','sa_fishnet_table') + """ WHERE state=0
@@ -96,7 +97,7 @@ RETURNING
 
 completeQuery = """
     UPDATE 
-    """ + config.get('postgres','sa_fishnet_table') + """ sa
+    """ + config.get('postgres','schema') + "."  + config.get('postgres','sa_fishnet_table') + """ sa
     SET state=NEWSTATE,
     time=RUNTIME
     WHERE

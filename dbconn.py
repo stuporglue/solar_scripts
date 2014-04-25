@@ -15,7 +15,13 @@ conffile = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + 'config.c
 config.readfp(open(conffile))
 
 try:
-    conn = psycopg2.connect(host = config.get('auth','host'), port = config.get('auth','port'), database = config.get('auth','dbname'), user = config.get('auth','user'), password = config.get('auth','pass'))
+    conn = psycopg2.connect(
+            host = config.get('postgres','host'), 
+            port = config.get('postgres','port'), 
+            database = config.get('postgres','dbname'), 
+            user = config.get('postgres','user'), 
+            password = config.get('postgres','pass')
+            )
     conn.autocommit=True
 
     # Create a server-side cursor so we don't end up with all records in memory at once
@@ -29,6 +35,7 @@ except Exception as e:
 def rewind():
     return cur.scroll(0,mode='absolute')
 
+# Run the query and return the results
 def run_query(q):
     try:
         cur.execute(q)
@@ -38,12 +45,13 @@ def run_query(q):
         
     return cur
 
-# Send the results of a query to the browser as geojson
+# Run the query and print the results as GeoJSON
 def send_query(q):
     cur = run_query(q)
     geojson = array_to_geojson(cur)
     return send_array_as_json(geojson)
 
+# Turn a cursor into an object.
 def cursor_to_object(rows,idfield):
     ret = {}
     for row in rows:
@@ -54,7 +62,7 @@ def cursor_to_object(rows,idfield):
 
     return ret
 
-
+# Turn an array into GeoJSON. Assumes that the geometry field was requested as ST_AsGeoJson(the_geom) AS the_geom
 def array_to_geojson(rows):
     # Build an empty GeoJSON FeatureCollection object, then fill it from the database results
     output = {
@@ -79,6 +87,7 @@ def array_to_geojson(rows):
         output['features'].append(one)
     return output
 
+# Print n array as GeoJSON 
 def send_array_as_json(arr):
     # First we have to print some headers
     # Followed by two blank lines. That's how the browser knows the headers are all done

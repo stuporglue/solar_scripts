@@ -5,10 +5,11 @@ port = 5432
 user = solaruser
 pass = solarpass
 dbname = solar
+schema = public
 max_inserts = 1000
-lidar_bbox_table = 'lidar_bbox'
-dem_fishnet_table = 'dem_fishnets'
-sa_fishnet_table = 'sa_fishnets'
+lidar_bbox_table = lidar_bbox
+dem_fishnet_table = dem_fishnets
+sa_fishnet_table = sa_fishnets
 
 [buffers]
 dem_selection_buffer = 50
