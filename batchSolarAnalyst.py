@@ -1,4 +1,6 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 # ---------------------------------------------------------------------------
 # batchSolarAnalyst.py
 # Created on: 2014-16-08 

@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # Continue fetching fishnet tiles that haven't been processed yet
 # Fetch the list of lidar files for those tiles and process them
 

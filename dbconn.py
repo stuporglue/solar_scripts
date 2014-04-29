@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Psycopg2 Windows Binaries: http://www.stickpeople.com/projects/python/win-psycopg/
 # You probably want the version for Python 2.7 32 bit which is what's distributed with Arc 10.2

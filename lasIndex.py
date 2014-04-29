@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # lasIndex.py
 # blast all MN Lidar to DEM
 # walz0053@umn.edu
@@ -16,3 +19,5 @@ for (root, subFolders, files) in os.walk(basepath):
     for onelasfile in files:
         if lasOrLaz.match(onelasfile):
             process = subprocess.Popen("lazindex.exe \\laz\\*.laz -cores " + config.get('data','cores'), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+            output,error = process.communicate()
+            returncode = process.poll()

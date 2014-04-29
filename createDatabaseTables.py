@@ -1,4 +1,5 @@
-# TODO: Create statements for database
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import os,dbconn
 from config import *

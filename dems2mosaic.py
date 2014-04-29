@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # Create a Mosaic Dataset in the workspace and add all 
 # *.img rasters from the input directory
 #

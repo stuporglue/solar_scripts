@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # For every las file, get its bounding box and insert it into Database
 # This could easily be adapter to any other SQL server
 # 
