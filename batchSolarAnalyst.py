@@ -28,9 +28,9 @@ import sys,os,arcpy,time,dbconn,tempfile,shutil,datetime
 from config import *
 
 # Define workspace and input datasets
-ws = config.get('arcgis','workspace')
-inMosaicDEM = config.get('arcgis','demMosaicName')
-out_path = config.get('paths','solarRasterOutputDir')
+ws = config.get('paths','workspace')
+inMosaicDEM = config.get('paths','dem_mosaic')
+out_path = config.get('paths','solar_raster_output_dir')
 
 
 # Check out spatial analyst and set ArcGIS environment settings
@@ -50,7 +50,7 @@ arcpy.env.scratchWorkspacea = tempfile.mkdtemp(prefix='temp_',dir=config.get('pa
 arcpy.SetLogHistory(True)
 
 # buffer distance for input processing extent
-buff = config.get('buffers','sa_processing_buffer')
+buff = config.getint('buffers','sa_processing_buffer')
 
 # Define Solar analyst variables
 in_surface_raster = inMosaicDEM

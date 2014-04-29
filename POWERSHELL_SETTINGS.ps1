@@ -6,6 +6,6 @@ $currentExecutingPath = $MyInvocation.MyCommand.Definition.Replace($MyInvocation
 
 # Path to ArcGIS's version of Python
 # Make our directry first, then our python
-$env:PATH = $currentExecutingPath + ";C:\Python27\ArcGIS10.2;" + $env:PATH
+$env:PATH = $currentExecutingPath + ";C:\Python27\ArcGISx6410.2;" + $env:PATH
 
 $env:PYTHONPATH = $currentExecutingPath + ";" + $env:PYTHONPATH
