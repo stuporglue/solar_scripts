@@ -28,6 +28,7 @@ additional_parameters = -first_only -elevation -drop_class 0 1 7 12
 las_dir = D:\SolarResourceData
 dem_output_dir = D:\MichaelTest\DemOutput
 solar_raster_output_dir = D:\MichaelTest\SolarRasterOutput
-temp_dir = D:\MichaelTest\TempDir
-lastools_bin_dir = C:\lastools\bin
-workspace = D:\MichaelTest\ArcWorkSpace
+temp_dir = z:\tmp
+workspace = Z:\home\arcgis\workspace
+extra_python_dirs = Z:\home\arcgis
+

@@ -4,9 +4,9 @@
 # Psycopg2 Windows Binaries: http://www.stickpeople.com/projects/python/win-psycopg/
 # You probably want the version for Python 2.7 32 bit which is what's distributed with Arc 10.2
 
+from config import *
 import psycopg2,psycopg2.extras,os,simplejson as json
 from psycopg2.extensions import adapt
-from config import *
 
 try:
     conn = psycopg2.connect(

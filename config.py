@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import ConfigParser,os
+import ConfigParser,os,sys
 
 config = ConfigParser.ConfigParser()
 
@@ -18,3 +18,10 @@ if not os.path.isfile(conffile):
 
 config.readfp(open(conffile))
 os.environ["PATH"] += os.pathsep + config.get('paths','lastools_bin_dir') 
+
+try:
+    libs = config.get('paths','extra_python_dirs') 
+    sys.path += libs.split(';')
+except:
+    # Do nothing. Must nut have an extra_python_dirs value
+    pass

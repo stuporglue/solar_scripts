@@ -130,7 +130,7 @@ while len(res) > 0:
             solar_raster = arcpy.sa.AreaSolarRadiation(in_surface_raster, latitude, sky_size, time_configuration, day_interval, hour_interval, each_interval, z_factor, slope_aspect_input_type, calculation_directions, zenith_divisions, azimuth_divisions, diffuse_model_type, diffuse_proportion, transmissivity, out_direct_radiation_raster, out_diffuse_radiation_raster, out_direct_duration_raster)
             # clip to feature extent and saves output
             envelope = "{0} {1} {2} {3}".format(int(row['xmin']), int(row['ymin']), int(row['xmax']), int(row['ymax']))
-            clipped_solar_raster = out_path + 'SRR_' + str(row['id']) + '.img' # what raster format do we want???
+            clipped_solar_raster = out_path + os.sep + 'SRR_' + str(row['id']) + '.img' # what raster format do we want???
 
             # Delete our output file if it already exists, effectively overwriting it
             if os.path.isfile(clipped_solar_raster):
