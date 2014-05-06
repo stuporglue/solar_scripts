@@ -24,7 +24,7 @@
 #   clippedOutput = clip outputRaster back to polygon size
 #   write clippedOutput file to designated directory
 
-import sys,os,arcpy,time,dbconn,tempfile,shutil,datetime
+import sys,os,arcpy,time,dbconn_quick,tempfile,shutil,datetime
 from config import *
 
 # Define workspace and input datasets
@@ -83,7 +83,7 @@ UPDATE """ + config.get('postgres','schema') + "." + config.get('postgres','sa_f
     WHERE sa.id in (
         SELECT id FROM """ + config.get('postgres','sa_fishnet_table') + """ WHERE state=0
         ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(""" + config.get('processing','starting_x') + """,""" + config.get('processing','starting_y') + """),""" + config.get('projection','srid') + """))
-        LIMIT 50
+        LIMIT 10
     )
 RETURNING
     id,
@@ -106,7 +106,7 @@ completeQuery = """
 """
 
 # connect to database using dbconn connection script
-res = dbconn.run_query(reserveQuery)
+res = dbconn_quick.run_query(reserveQuery)
 count = 0
 average = 0
 
@@ -162,8 +162,8 @@ while len(res) > 0:
             print "Error! (" + str((time_run)) + " seconds, running avg:" + str(average) + ")"
             resultsToSubmit.append([str(row['id']),'-3','-1'])
 
-    res = dbconn.run_query(completeQuery.replace('UPDATEVALUES',"'),('".join(["','".join(x) for x in resultsToSubmit])))
-    res = dbconn.run_query(reserveQuery).fetchall()
+    res = dbconn_quick.run_query(completeQuery.replace('UPDATEVALUES',"'),('".join(["','".join(x) for x in resultsToSubmit])))
+    res = dbconn_quick.run_query(reserveQuery).fetchall()
 
 # We have to manually unlink temp dirs created by mkdtemp
 shutil.rmtree(arcpy.env.scratchWorkspacea)
