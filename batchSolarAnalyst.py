@@ -83,7 +83,7 @@ UPDATE """ + config.get('postgres','schema') + "." + config.get('postgres','sa_f
     WHERE sa.id in (
         SELECT id FROM """ + config.get('postgres','sa_fishnet_table') + """ WHERE state=0
         ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(""" + config.get('processing','starting_x') + """,""" + config.get('processing','starting_y') + """),""" + config.get('projection','srid') + """))
-        LIMIT 1
+        LIMIT 50
     )
 RETURNING
     id,
@@ -95,20 +95,23 @@ RETURNING
 """
 
 completeQuery = """
-    UPDATE 
-    """ + config.get('postgres','schema') + "."  + config.get('postgres','sa_fishnet_table') + """ sa
-    SET state=NEWSTATE,
-    time=RUNTIME
+    UPDATE """ + config.get('postgres','schema') + "."  + config.get('postgres','sa_fishnet_table') + """ AS sa
+    SET 
+    state = c.newstate,
+    time = c.runtime
+    FROM (values
+    ('UPDATEVALUES') AS c(updateid,newstate,runtime)
     WHERE
-    sa.id=DEMID
+    sa.id=c.updateid
 """
 
 # connect to database using dbconn connection script
-res = dbconn.run_query(reserveQuery).fetchall()
+res = dbconn.run_query(reserveQuery)
 count = 0
 average = 0
 
 while len(res) > 0:
+    resultsToSubmit = []
     for row in res:
         count += 1
 
@@ -154,11 +157,12 @@ while len(res) > 0:
 
         if solarWorked:
             print "DONE! (" + str((time_run)) + " seconds, running avg:" + str(average) + ")"
-            dbconn.run_query(completeQuery.replace("DEMID",str(row['id'])).replace('NEWSTATE','2').replace('RUNTIME', str(time_run)))
+            resultsToSubmit.append([str(row['id']),'2',str(time_run)])
         else:
             print "Error! (" + str((time_run)) + " seconds, running avg:" + str(average) + ")"
-            dbconn.run_query(completeQuery.replace("DEMID",str(row['id'])).replace('NEWSTATE','-3').replace('RUNTIME','-1'))
+            resultsToSubmit.append([str(row['id']),'-3','-1'])
 
+    res = dbconn.run_query(completeQuery.replace('UPDATEVALUES',"'),('".join(["','".join(x) for x in resultsToSubmit])))
     res = dbconn.run_query(reserveQuery).fetchall()
 
 # We have to manually unlink temp dirs created by mkdtemp
