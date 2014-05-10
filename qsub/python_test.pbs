@@ -1,0 +1,23 @@
+#!/bin/bash -l
+
+# Max time the job will run for
+#PBS -l walltime=00:01:00
+
+# Amount of memory per core/job 
+#PBS -l pmem=200mb
+
+# Number of nodes we're asking for and number of proc
+#PBS -l nodes=1:ppn=8
+
+# Send mail (-m) when the job is (a)borted, (b)egins and (e)nds
+#PBS -m abe
+#####  P B   S  -l pmem=2500mb,nodes=2:ppn=8,pmem=4gb,walltime=24:00:00
+
+# Run 8 instances of batchSolarAnalyst
+export PATH=/home/lenkne/shared/arc/server/arcgis/server/tools/:$PATH
+export LD_LIBRARY_PATH=/home/lenkne/shared/arc/libs:$LD_LIBRARY_PATH
+export LOGNAME=moor1090
+
+pbsdsh -n 0 python /home/lenkne/shared/solar_scripts/dbconn_quick.py 2>&1 >> output &
+wait
+

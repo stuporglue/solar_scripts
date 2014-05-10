@@ -1,0 +1,2 @@
+#!/bin/bash -l
+#PBS -l pmem=2150mb,nodes=1:ppn=8,walltime=00:20:00

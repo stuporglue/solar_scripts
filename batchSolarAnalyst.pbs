@@ -1,5 +1,0 @@
-#!/bin/bash -l
-#PBS -l nodes=1,ppn=8,pmem=2gb,walltime=00:
-
-# This is a guess and python is almost definately located somewhere else
-/usr/opt/ArcGIS/python27_x64/python.exe ./batchSolarAnalyst.py

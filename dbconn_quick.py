@@ -8,11 +8,12 @@
 
 from config import *
 import psycopg2,psycopg2.extras,os,time,random
+from psycopg2.extensions import adapt
 
-host = config.get('postgres','host'), 
-port = config.get('postgres','port'), 
-database = config.get('postgres','dbname'), 
-user = config.get('postgres','user'), 
+host = config.get('postgres','host')
+port = config.get('postgres','port')
+database = config.get('postgres','dbname')
+user = config.get('postgres','user')
 password = config.get('postgres','pass')
 
 # Run the query and return the results
@@ -21,10 +22,19 @@ def run_query(q):
     dbsleeper = 0.3 # start by sleeping for .3 seconds. Sleep at most 5 seconds
     while not cur:
         try:
-            conn=psycopg2.connect(host=host,port=port,database=database,user=user,password=password)
+            args = {
+                    'host':host,
+                    'port':port,
+                    'database':database,
+                    'user':user,
+                    'password':password
+                    }
+            conn=psycopg2.connect(**args)
             conn.autocommit=True
             cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         except:
+            print "Failed as " + str(cur) + ' ' + str(sys.exc_info()[0])
+            print "Sleeping for " + str(dbsleeper)
             cur = False
             time.sleep(dbsleeper + random.random())
             if dbsleeper < 5:

@@ -29,7 +29,7 @@ from config import *
 
 # Define workspace and input datasets
 ws = config.get('paths','workspace')
-inMosaicDEM = config.get('paths','dem_mosaic')
+in_surface_raster = config.get('paths','dem_mosaic')
 out_path = config.get('paths','solar_raster_output_dir')
 
 
@@ -53,7 +53,6 @@ arcpy.SetLogHistory(True)
 buff = config.getint('buffers','sa_processing_buffer')
 
 # Define Solar analyst variables
-in_surface_raster = inMosaicDEM
 latitude = '' # generate in for loop from feature attribute
 sky_size = int(config.get('solar_analyst','sky_size')) # min is 100
 
@@ -144,8 +143,10 @@ while len(res) > 0:
 
         except 'arcgisscripting.ExecuteError':
             print "\t\t\t" + arcpy.GetMessages(3)
+            print sys.exc_info()
             solarWorked = False
         except:   
+            print sys.exc_info()
             e = sys.exc_info()[0]
             print "\t\t\t" + str(e)
             solarWorked = False
