@@ -1,4 +1,5 @@
 #!/bin/bash -l
+#PBS -A lenkne
 
 # Max time the job will run for
 #PBS -l walltime=00:01:00

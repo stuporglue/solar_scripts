@@ -2,14 +2,14 @@
 
 #PBS -A lenkne
 
+# Number of nodes we're asking for and number of proc
+#PBS -l nodes=100:ppn=8
+
 # Max time the job will run for
-#PBS -l walltime=15:00:00
+#PBS -l walltime=5:00:00
 
 # Amount of memory per core/job 
 #PBS -l pmem=2500mb
-
-# Number of nodes we're asking for and number of proc
-#PBS -l nodes=300:ppn=8
 
 # Send mail (-m) when the job is (a)borted, (b)egins and (e)nds
 #PBS -m abe

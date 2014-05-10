@@ -99,7 +99,7 @@ completeQuery = """
     state = c.newstate,
     time = c.runtime
     FROM (values
-    ('UPDATEVALUES') AS c(updateid,newstate,runtime)
+    ('UPDATEVALUES') AS (updateid,newstate,runtime)
     WHERE
     sa.id=c.updateid
 """
@@ -164,7 +164,7 @@ while len(res) > 0:
             resultsToSubmit.append([str(row['id']),'-3','-1'])
 
     res = dbconn_quick.run_query(completeQuery.replace('UPDATEVALUES',"'),('".join(["','".join(x) for x in resultsToSubmit])))
-    res = dbconn_quick.run_query(reserveQuery).fetchall()
+    res = dbconn_quick.run_query(reserveQuery)
 
 # We have to manually unlink temp dirs created by mkdtemp
 shutil.rmtree(arcpy.env.scratchWorkspacea)
