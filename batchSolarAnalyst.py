@@ -24,8 +24,13 @@
 #   clippedOutput = clip outputRaster back to polygon size
 #   write clippedOutput file to designated directory
 
-import sys,os,arcpy,time,dbconn_quick,tempfile,shutil,datetime
+print "Importing libraries"
+import sys,os,time,dbconn_quick,tempfile,shutil,datetime
+print "Importing config"
 from config import *
+print "Importing arcpy"
+import arcpy
+print "Ready to go"
 
 # Define workspace and input datasets
 ws = config.get('paths','workspace')
@@ -34,7 +39,10 @@ out_path = config.get('paths','solar_raster_output_dir')
 
 
 # Check out spatial analyst and set ArcGIS environment settings
+print "Checking out the spatial extension"
 arcpy.CheckOutExtension("spatial")
+
+print "Making temp paths"
 workspace = tempfile.mkdtemp(prefix='results_',dir=config.get('paths','temp_dir'))
 if not os.path.isdir(workspace):
     print "ERROR! Couldn't create workspace directory " + workspace
@@ -42,12 +50,14 @@ if not os.path.isdir(workspace):
 
 arcpy.env.workspace = workspace
 
+print "Making scratch workspace"
 # Make a temp directory to avoid the FATAL ERROR (INFADI)  MISSING DIRECTORY error 
 # NOTE: Delete this later (last line of script)
 # Seems like dir should be made in here, but it's not working.... tempfile.gettempdir()
 arcpy.env.scratchWorkspacea = tempfile.mkdtemp(prefix='temp_',dir=config.get('paths','temp_dir'))
 
-arcpy.SetLogHistory(True)
+print "Setting loghistory to false"
+arcpy.SetLogHistory(False)
 
 # buffer distance for input processing extent
 buff = config.getint('buffers','sa_processing_buffer')
@@ -57,7 +67,7 @@ latitude = '' # generate in for loop from feature attribute
 sky_size = int(config.get('solar_analyst','sky_size')) # min is 100
 
 # TODO: Change 2014 to current year
-
+print "Setting SA settings"
 time_configuration = arcpy.sa.TimeWholeYear(datetime.date.today().year) # arcgis time object set for all of 2014
 day_interval = '' # with whole year analysis default is calendar month
 hour_interval = '' # default is 0.5
@@ -82,7 +92,7 @@ UPDATE """ + config.get('postgres','schema') + "." + config.get('postgres','sa_f
     WHERE sa.id in (
         SELECT id FROM """ + config.get('postgres','sa_fishnet_table') + """ WHERE state=0
         ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(""" + config.get('processing','starting_x') + """,""" + config.get('processing','starting_y') + """),""" + config.get('projection','srid') + """))
-        LIMIT 10
+        LIMIT 1
     )
 RETURNING
     id,
@@ -105,6 +115,7 @@ completeQuery = """
 """
 
 # connect to database using dbconn connection script
+print "Reserving first job"
 res = dbconn_quick.run_query(reserveQuery)
 count = 0
 average = 0
@@ -167,7 +178,7 @@ while len(res) > 0:
             resultsToSubmit.append([str(row['id']),'-3','-1'])
 
     cq = completeQuery.replace('UPDATEVALUES',"'),('".join(["','".join(x) for x in resultsToSubmit]))
-    res = dbconn_quick.run_query(cq)
+    res = dbconn_quick.send_query(cq)
     res = dbconn_quick.run_query(reserveQuery)
 
 # We have to manually unlink temp dirs created by mkdtemp
