@@ -109,7 +109,11 @@ completeQuery = """
     state = c.newstate::integer,
     time = c.runtime::float
     FROM (values
+<<<<<<< HEAD
     ('UPDATEVALUES')) AS c(updateid,newstate,runtime)
+=======
+    ('UPDATEVALUES') AS (updateid,newstate,runtime)
+>>>>>>> c57879bb02ed4f96ace7de9c7cc2b4972f22dcd5
     WHERE
     sa.id=c.updateid::integer
 """
