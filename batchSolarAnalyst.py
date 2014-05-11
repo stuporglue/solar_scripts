@@ -117,6 +117,7 @@ completeQuery = """
 # connect to database using dbconn connection script
 print "Reserving first job"
 res = dbconn_quick.run_query(reserveQuery)
+print str(len(res)) + " jobs reserved"
 count = 0
 average = 0
 

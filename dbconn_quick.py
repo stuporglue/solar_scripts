@@ -18,6 +18,7 @@ password = config.get('postgres','pass')
 
 def _getConn():
     cur = False
+    print "Trying to connect to the database"
     while not cur:
         try:
             args = {
@@ -28,8 +29,10 @@ def _getConn():
                     'password':password
                     }
             conn=psycopg2.connect(**args)
+            print "Successfuly connected to the db"
             conn.autocommit=True
             cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+            print "Here's a cursor"
             return cur
         except:
             print "Failed as " + str(cur) + ' ' + str(sys.exc_info()[0])

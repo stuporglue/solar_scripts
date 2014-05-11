@@ -6,15 +6,24 @@
 #PBS -l nodes=100:ppn=8
 
 # Max time the job will run for
-#PBS -l walltime=5:00:00
+#PBS -l walltime=05:00:00
 
 # Amount of memory per core/job 
 #PBS -l pmem=2500mb
 
 # Send mail (-m) when the job is (a)borted, (b)egins and (e)nds
 #PBS -m abe
+
+# combine stdout and stderr
+#PBS -j oe
+
+# Give output a name
+#PBS -N output_100
 #####  P B   S  -l pmem=2500mb,nodes=2:ppn=8,pmem=4gb,walltime=24:00:00
 
-# Run 8 instances of batchSolarAnalyst
-pbsdsh -c 8 /home/lenkne/shared/solar_scripts/qsub/batchSolarAnalyst.sh 2>&1 >> output &
+echo "Job started on `hostname` at `date`"
+
+#One instance per core is run (I think)
+pbsdsh /home/lenkne/shared/solar_scripts/qsub/batchSolarAnalyst.sh  &
+
 wait
