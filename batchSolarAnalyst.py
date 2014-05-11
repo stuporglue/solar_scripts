@@ -96,12 +96,12 @@ RETURNING
 completeQuery = """
     UPDATE """ + config.get('postgres','schema') + "."  + config.get('postgres','sa_fishnet_table') + """ AS sa
     SET 
-    state = c.newstate,
-    time = c.runtime
+    state = c.newstate::integer,
+    time = c.runtime::float
     FROM (values
-    ('UPDATEVALUES') AS (updateid,newstate,runtime)
+    ('UPDATEVALUES')) AS c(updateid,newstate,runtime)
     WHERE
-    sa.id=c.updateid
+    sa.id=c.updateid::integer
 """
 
 # connect to database using dbconn connection script
@@ -138,8 +138,11 @@ while len(res) > 0:
             if os.path.isfile(clipped_solar_raster):
                 os.unlink(clipped_solar_raster)
 
-            clipped = arcpy.Clip_management(solar_raster, envelope, clipped_solar_raster) #, '', '-3.402823e+038', '', True)
-            solarWorked = True
+            if not os.path.isfile(clipped_solar_raster):
+                clipped = arcpy.Clip_management(solar_raster, envelope, clipped_solar_raster) #, '', '-3.402823e+038', '', True)
+
+            if os.path.isfile(clipped_solar_raster):
+                solarWorked = True
 
         except 'arcgisscripting.ExecuteError':
             print "\t\t\t" + arcpy.GetMessages(3)
@@ -163,7 +166,8 @@ while len(res) > 0:
             print "Error! (" + str((time_run)) + " seconds, running avg:" + str(average) + ")"
             resultsToSubmit.append([str(row['id']),'-3','-1'])
 
-    res = dbconn_quick.run_query(completeQuery.replace('UPDATEVALUES',"'),('".join(["','".join(x) for x in resultsToSubmit])))
+    cq = completeQuery.replace('UPDATEVALUES',"'),('".join(["','".join(x) for x in resultsToSubmit]))
+    res = dbconn_quick.run_query(cq)
     res = dbconn_quick.run_query(reserveQuery)
 
 # We have to manually unlink temp dirs created by mkdtemp
