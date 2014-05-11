@@ -16,10 +16,8 @@ database = config.get('postgres','dbname')
 user = config.get('postgres','user')
 password = config.get('postgres','pass')
 
-# Run the query and return the results
-def run_query(q):
+def _getConn():
     cur = False
-    dbsleeper = 0.3 # start by sleeping for .3 seconds. Sleep at most 5 seconds
     while not cur:
         try:
             args = {
@@ -32,6 +30,7 @@ def run_query(q):
             conn=psycopg2.connect(**args)
             conn.autocommit=True
             cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+            return cur
         except:
             print "Failed as " + str(cur) + ' ' + str(sys.exc_info()[0])
             print "Sleeping for " + str(dbsleeper)
@@ -40,15 +39,43 @@ def run_query(q):
             if dbsleeper < 5:
                 dbsleeper *= 2
 
-    # Now that we have a connection, run the query and return the rows
-    try:
-        cur.execute(q)
-    except Exception as exp:
-        print "Exception"
-        print exp
-        cur.close()
-        return []
 
-    rows = cur.fetchall();
-    cur.close()
-    return rows
+
+# Run the query and return the results
+def run_query(q):
+    cur = False
+    dbsleeper = 0.3 # start by sleeping for .3 seconds. Sleep at most 5 seconds
+    while not cur:
+
+        cur = _getConn()
+
+        if cur:
+            # Now that we have a connection, run the query and return the rows
+            try:
+                cur.execute(q)
+                rows = cur.fetchall();
+                cur.close()
+                return rows
+            except Exception as exp:
+                print "Exception"
+                print exp
+                time.sleep(dbsleeper + random.random())
+
+
+# Run the query and don't return the results
+def send_query(q):
+    cur = False
+    dbsleeper = 0.3 # start by sleeping for .3 seconds. Sleep at most 5 seconds
+    while not cur:
+        cur = _getConn()
+
+        if cur:
+            # Now that we have a connection, run the query and return the rows
+            try:
+                cur.execute(q)
+                cur.close()
+                return True 
+            except Exception as exp:
+                print "Exception"
+                print exp
+                time.sleep(dbsleeper + random.random())
