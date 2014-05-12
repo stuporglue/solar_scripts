@@ -24,26 +24,45 @@
 #   clippedOutput = clip outputRaster back to polygon size
 #   write clippedOutput file to designated directory
 
-print "Importing libraries"
-import sys,os,time,dbconn_quick,tempfile,shutil,datetime
+print "Import sys"
+import sys
+print "Import os"
+import os
+print "Import time"
+import time
+print "Import dbconn_quick"
+import dbconn_quick
+print "Import shutil"
+import shutil
+print "Import datetime"
+import datetime
+print "Import config"
 print "Importing config"
 from config import *
 print "Importing arcpy"
 import arcpy
-print "Ready to go"
+print "Everything imported"
 
 # Define workspace and input datasets
 ws = config.get('paths','workspace')
 in_surface_raster = config.get('paths','dem_mosaic')
 out_path = config.get('paths','solar_raster_output_dir')
 
+try:
+    tmpfile = (os.environ.get('PBS_NODENAME') or os.environ.get('HOSTNAME')) + str(time.time()) + str(os.getpid())
+except:
+    print os.environ
+    raise
 
 # Check out spatial analyst and set ArcGIS environment settings
 print "Checking out the spatial extension"
 arcpy.CheckOutExtension("spatial")
 
 print "Making temp paths"
-workspace = tempfile.mkdtemp(prefix='results_',dir=config.get('paths','temp_dir'))
+workspace = config.get('paths','temp_dir') + os.sep + tmpfile + '_workspace'
+if not os.path.isdir(workspace):
+    os.mkdir(workspace)
+
 if not os.path.isdir(workspace):
     print "ERROR! Couldn't create workspace directory " + workspace
     exit()
@@ -54,7 +73,12 @@ print "Making scratch workspace"
 # Make a temp directory to avoid the FATAL ERROR (INFADI)  MISSING DIRECTORY error 
 # NOTE: Delete this later (last line of script)
 # Seems like dir should be made in here, but it's not working.... tempfile.gettempdir()
-arcpy.env.scratchWorkspacea = tempfile.mkdtemp(prefix='temp_',dir=config.get('paths','temp_dir'))
+scratchdir = config.get('paths','temp_dir') + os.sep + tmpfile + '_temp'
+
+if not os.path.isdir(scratchdir):
+    os.mkdir(scratchdir)
+
+arcpy.env.scratchWorkspacea = scratchdir
 
 print "Setting loghistory to false"
 arcpy.SetLogHistory(False)
@@ -126,7 +150,7 @@ while len(res) > 0:
     for row in res:
         count += 1
 
-        sys.stdout.write("Running Area Solar Radiation for row " + str(row['id']) + "    ")
+        print "Running Area Solar Radiation for row " + str(row['id'])
         start_time = time.clock()
 
         # add buffer/subtract distance to extent boundaries

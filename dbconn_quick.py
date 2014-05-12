@@ -7,8 +7,11 @@
 # You probably want the version for Python 2.7 32 bit which is what's distributed with Arc 10.2
 
 from config import *
-import psycopg2,psycopg2.extras,os,time,random
-from psycopg2.extensions import adapt
+import psycopg2,os,time
+import psycopg2.extras
+#psycopg2.extras,os,time
+
+#from psycopg2.extensions import adapt
 
 host = config.get('postgres','host')
 port = config.get('postgres','port')
@@ -32,13 +35,14 @@ def _getConn():
             print "Successfuly connected to the db"
             conn.autocommit=True
             cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+            #cur = conn.cursor()
             print "Here's a cursor"
             return cur
         except:
             print "Failed as " + str(cur) + ' ' + str(sys.exc_info()[0])
             print "Sleeping for " + str(dbsleeper)
             cur = False
-            time.sleep(dbsleeper + random.random())
+            time.sleep(dbsleeper + time() % 1)
             if dbsleeper < 5:
                 dbsleeper *= 2
 
@@ -62,7 +66,7 @@ def run_query(q):
             except Exception as exp:
                 print "Exception"
                 print exp
-                time.sleep(dbsleeper + random.random())
+                time.sleep(dbsleeper + time() % 1)
 
 
 # Run the query and don't return the results
@@ -81,4 +85,4 @@ def send_query(q):
             except Exception as exp:
                 print "Exception"
                 print exp
-                time.sleep(dbsleeper + random.random())
+                time.sleep(dbsleeper + time() % 1)
