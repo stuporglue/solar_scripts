@@ -49,7 +49,7 @@ in_surface_raster = config.get('paths','dem_mosaic')
 out_path = config.get('paths','solar_raster_output_dir')
 
 try:
-    tmpfile = (os.environ.get('PBS_NODENAME') or os.environ.get('HOSTNAME')) + str(time.time()) + str(os.getpid())
+    tmpfile = (os.environ.get('PBS_NODENAME') or os.environ.get('HOSTNAME') or 'nohostname') + str(time.time()) + str(os.getpid())
 except:
     print os.environ
     raise
@@ -116,7 +116,7 @@ UPDATE """ + config.get('postgres','schema') + "." + config.get('postgres','sa_f
     WHERE sa.id in (
         SELECT id FROM """ + config.get('postgres','sa_fishnet_table') + """ WHERE state=0
         ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(""" + config.get('processing','starting_x') + """,""" + config.get('processing','starting_y') + """),""" + config.get('projection','srid') + """))
-        LIMIT 1
+        LIMIT 3
     )
 RETURNING
     id,
