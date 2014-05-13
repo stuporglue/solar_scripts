@@ -24,20 +24,13 @@
 #   clippedOutput = clip outputRaster back to polygon size
 #   write clippedOutput file to designated directory
 
-print "Import sys"
+print "Batch Solar Analyst, reporting for duty"
 import sys
-print "Import os"
 import os
-print "Import time"
 import time
-print "Import dbconn_quick"
 import dbconn_quick
-print "Import shutil"
 import shutil
-print "Import datetime"
 import datetime
-print "Import config"
-print "Importing config"
 from config import *
 print "Importing arcpy"
 import arcpy
@@ -116,7 +109,7 @@ UPDATE """ + config.get('postgres','schema') + "." + config.get('postgres','sa_f
     WHERE sa.id in (
         SELECT id FROM """ + config.get('postgres','sa_fishnet_table') + """ WHERE state=0
         ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(""" + config.get('processing','starting_x') + """,""" + config.get('processing','starting_y') + """),""" + config.get('projection','srid') + """))
-        LIMIT 3
+        LIMIT 3 FOR UPDATE
     )
 RETURNING
     id,
