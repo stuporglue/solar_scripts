@@ -13,13 +13,11 @@ pre {
 
 blink {
     animation: blink 1s steps(2, start) infinite; 
+    -webkit-animation: blink 1s steps(2, start) infinite; 
 }
 
-@keyframes blink {
-    to {
-        visibility: hidden;
-    }
-}
+@keyframes blink{ to { visibility: hidden;} }
+@-webkit-keyframes blink{ to { visibility: hidden;} }
 
 pre.code {
     padding:5px 5px 5px 5px;
@@ -302,10 +300,10 @@ moor1090@node1082:/home/lenkne/shared/MinnesotaLiDAR_DSM/Output_SRR&gt; <blink>&
 UPDATE sa_fishnets SET id=id,modified_at=NULL,state=0 WHERE modified_at IS NOT NULL OR state&lt;&gt;0
 </pre>
         </li>
-        <li>Reset all jobs which have been checked out for more than 5 hours:
+        <li>Reset all jobs which haven't been completed and which have been checked out for more than 5 hours:
 <pre class='sql'>
 UPDATE sa_fishnets SET state=0
-WHERE state &lt;&gt; 0
+WHERE state &lt;&gt; 2
 AND
 (NOW() - modified_at) &gt; '05:00:00'::interval
 </pre>
