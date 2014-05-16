@@ -1,0 +1,418 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <title>How to be super</title>
+        <style type='text/css'>
+pre {
+    color: #00ff00;
+    background-color: black;
+    padding: 20px;
+    padding-left: 5px;
+}
+
+blink {
+    animation: blink 1s steps(2, start) infinite; 
+    -webkit-animation: blink 1s steps(2, start) infinite; 
+}
+
+@keyframes blink{ to { visibility: hidden;} }
+@-webkit-keyframes blink{ to { visibility: hidden;} }
+
+pre.code {
+    padding:5px 5px 5px 5px;
+    color: black;
+    background-color: #ccc;
+}
+        </style>
+    </head>
+    <body>
+        <h1>How To Run ArcPy Scripts On Itasca</h1>
+        <h2>Environment</h2>
+        <p>
+        Here's the basic rundown on how we ran our ArcPy scripts on the <a href='https://www.msi.umn.edu/hpc/itasca'>Itasca</a> supercomputer. 
+        </p>
+        <p>
+        I'm doing all these steps on Debian Linux. Your initial setup might be 
+        different, especially on Windows. There you'll want to use <a href='http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html'>putty.exe</a> to connect.
+        </p>
+
+        <h2>ArcGIS Server For Linux</h2>
+        <p>
+            In order to use ArcPy on ArcGIS Server For Linux you must be logged 
+            in as the same user who installed ArcGIS Server. This means that instead of 
+            something sane and reasonable like, oh I don't know, the folks running the supercomputer 
+            installing ArcServer and letting everyone use it, you need to install
+            it yourself in your own directory. 
+        </p>
+        <p>The easiest way to install ArcGIS Server is from a machine with X11 forwarding. This could be a
+        Linux machine, or a Mac (open the X11 terminal instead of Terminal.app) or a Windows machine with X11
+        configured. Linux or a Mac will be easiest. 
+        </p>
+        <p>
+        Download ArcGIS Server to your local machine. If it's an .iso you won't have 
+        permission to mount it on the supercomputer anyways. Mount the .iso and copy the
+        ArcGISServer directory to the supercomputer.
+        </p>
+        <p>
+        Also copy your authorization file to the supercomputer before starting the install.
+        </p>
+        <p>Now connect with X forwarding. If you're using a terminal, it will look like this:
+        <pre>
+
+stuporglue@speed:~$ ssh -X moor1090@login.msi.umn.edu
+Last login: Sat May 10 08:14:31 2014 from vpn0-974.vpn.umn.edu
+-------------------------------------------------------------------------------
+              University of Minnesota Supercomputing Institute
+-------------------------------------------------------------------------------
+For assistance please contact us at
+https://www.msi.umn.edu/support/help.html,
+help@msi.umn.edu, or 612-626-0802.
+-------------------------------------------------------------------------------
+This is a login host. Please avoid running resource-intensive tasks on 
+this machine. Instead, use the isub command to be logged into a node 
+appropriate for long-running interactive jobs. See 'isub --help' for options
+or https://www.msi.umn.edu/remote-access for more information.
+
+Or, for non-interactive tasks, submit your job to one of MSI's HPC 
+resources (details at https://www.msi.umn.edu/hpc) or lab queues (details
+at https://www.msi.umn.edu/labs/pbs).
+-------------------------------------------------------------------------------
+-bash-4.1$ ssh -X itasca
+Last login: Sat May 10 07:46:14 2014 from 128.101.189.229
+
+-------------------------------------------------------------------------------
+             University of Minnesota Supercomputing Institute
+                                 Itasca
+                         HP c7000 Linux Cluster
+-------------------------------------------------------------------------------
+For assistance please contact us at https://www.msi.umn.edu/support/help.html
+help@msi.umn.edu, or (612)626-0802.
+-------------------------------------------------------------------------------
+The available scratch space on Itasca is /lustre.  All files in the scratch
+directory that have not been modified for 30 days will be deleted. 
+-------------------------------------------------------------------------------
+Home directories are snapshot protected. If you accidentally delete a file in
+your home directory, type "cd .snapshot" then "ls -lt" to list the snapshots
+available in order from most recent to oldest.
+
+The file you need can be copied from a snapshot back to its former place in 
+your home directory.
+-------------------------------------------------------------------------------
+
+April 2014 -- Changes to the Itasca System
+ 
+   * Itasca now requires logins through the MSI login systems, see
+      https://www.msi.umn.edu/remote-access for more information
+   * The default module for Gaussian09 has been changed to
+     gaussian/g09.d01_itasca.  This new build will address some performance
+     issues with Linda parallel jobs.
+
+-------------------------------------------------------------------------------
+
+moor1090@node1082:~&gt; <blink>&#x258A</blink> 
+        </pre>
+</p>
+<p>Run the <i>Setup</i> command
+<pre>
+moor1090@node1082:/home/lenkne/shared/arc/install> ./Setup
+</pre>
+</p>
+<p>
+The installer should soon appear on your screen. Remember that even though the windows are appearing on
+your screen, everything is happening on the supercomputer and all paths are paths on the supercomputer
+</p>
+
+        <h2>Connecting To Itasca</h2>
+
+        <ol>
+            <li>Connect to the UMN VPN (<a href='http://sspu-test.oit.umn.edu/it/all-services/data-network/vpn/downloads-guides/index.htm'>Instructions</a>)</li>
+            <li>Connect to the MSI login node
+
+            <pre>
+stuporglue@speed:~$ ssh moor1090@login.msi.umn.edu
+moor1090@login.msi.umn.edu's password:
+Last login: Thu May  8 19:04:10 2014 from nat-10-22-95-242.uofm.wireless.umn.edu
+-------------------------------------------------------------------------------
+              University of Minnesota Supercomputing Institute
+-------------------------------------------------------------------------------
+For assistance please contact us at
+https://www.msi.umn.edu/support/help.html,
+help@msi.umn.edu, or 612-626-0802.
+-------------------------------------------------------------------------------
+This is a login host. Please avoid running resource-intensive tasks on
+this machine. Instead, use the isub command to be logged into a node
+appropriate for long-running interactive jobs. See 'isub --help' for options
+or https://www.msi.umn.edu/remote-access for more information.
+
+Or, for non-interactive tasks, submit your job to one of MSI's HPC
+resources (details at https://www.msi.umn.edu/hpc) or lab queues (details
+at https://www.msi.umn.edu/labs/pbs).
+-------------------------------------------------------------------------------
+-bash-4.1$ <blink>&#x258A</blink> 
+</pre>
+
+            </li>
+
+            <li>Connect to Itasca
+
+            <pre>
+-bash-4.1$ ssh itasca
+Password: 
+Last login: Fri May  9 14:58:51 2014 from 128.101.189.230
+
+-------------------------------------------------------------------------------
+             University of Minnesota Supercomputing Institute
+                                 Itasca
+                         HP c7000 Linux Cluster
+-------------------------------------------------------------------------------
+For assistance please contact us at https://www.msi.umn.edu/support/help.html
+help@msi.umn.edu, or (612)626-0802.
+-------------------------------------------------------------------------------
+The available scratch space on Itasca is /lustre.  All files in the scratch
+directory that have not been modified for 30 days will be deleted. 
+-------------------------------------------------------------------------------
+Home directories are snapshot protected. If you accidentally delete a file in
+your home directory, type "cd .snapshot" then "ls -lt" to list the snapshots
+available in order from most recent to oldest.
+
+The file you need can be copied from a snapshot back to its former place in 
+your home directory.
+-------------------------------------------------------------------------------
+
+April 2014 -- Changes to the Itasca System
+
+   * Itasca now requires logins through the MSI login systems, see
+      https://www.msi.umn.edu/remote-access for more information
+   * The default module for Gaussian09 has been changed to
+     gaussian/g09.d01_itasca.  This new build will address some performance
+     issues with Linda parallel jobs.
+
+-------------------------------------------------------------------------------
+
+moor1090@node1084:~&gt; <blink>&#x258A</blink> 
+</pre>            
+
+            </li>
+        </ol>
+
+        <h2>Random Notes</h2>
+        <ol>
+            <li>Jobs are submitted using qsub</li>
+            <li>Qsub scripts are named <i>whatever</i>.pbs</li>
+        </ol>
+
+
+        <h2>Running Interactive Jobs</h2>
+        <p>
+        Itasca isn't meant for running interactive jobs, but it's a good way to test your configuration before submitting batch jobs.
+        </p>
+        <ol>
+            <li>Create an Interactive Shell job <i>interactive_shell.pbs</i>
+
+            <p>It should be a plain-text file with the following contents:</p>
+            <pre class='code'>
+#!/bin/bash -l
+#PBS -l pmem=2150mb,nodes=1:ppn=8,walltime=00:20:00
+</pre>
+            </li>
+            <li>Specify that you want an interactive job by using <i>-I</i>
+            <pre>
+moor1090@node1084:~/solar_scripts&gt; qsub -I interactive_shell.pbs 
+qsub: waiting for job 950429.node1081.localdomain to start
+qsub: job 950429.node1081.localdomain ready
+
+moor1090@node0051:~&gt; <blink>&#x258A</blink> 
+</pre>            
+            </li>
+            <li>You should now be in the same environment that your scripts will run in.</li>
+            <li>To exit the environment, just type exit. You will be automatically kicked out when the <i>walltime</i> specified in your pbs script expires.</li>
+        </ol>
+
+        <h2>Running Batch Jobs</h2>
+        <ol>
+            <li>Get your script to run successfully manually in interactive mode first.</li>
+            <li>Configure your job's PBS settings like so (this is 10_055.pbs):
+<pre class='code'>
+#!/bin/bash -l
+
+# This is the account the SU (Service Units) will be deducted from. 
+# By default it is your user account, but we want to deduct from our group account
+#PBS -A lenkne
+
+# Number of nodes we're asking for and number of processors per node
+# On Itasca we must use all 8
+#PBS -l nodes=10:ppn=8
+
+# Max time the job will run for
+# dd:hh:mm:ss
+#PBS -l walltime=00:55:00
+
+# Amount of memory per core/job 
+#PBS -l pmem=2500mb
+
+# Send mail (-m) when the job is (a)borted, (b)egins and (e)nds
+#PBS -m abe
+
+# Since our script doesn't take advantage of multiple cores
+# we use -c 8 to launch the same script on 8 cores
+# Run 8 instances of batchSolarAnalyst
+pbsdsh -c 8 /home/lenkne/shared/solar_scripts/qsub/batchSolarAnalyst.sh &
+wait
+</pre>
+You can name the pbs script whatever you want. I named several scripts by the number of nodes and the time they would reserve.
+            </li>
+<li>The file <i>batchSolarAnalyst.sh</i> should set up any environment variables you need and launch the actual script. eg:
+
+<pre class='code'>
+#!/bin/bash
+
+# Set up paths for python
+export PATH=/home/lenkne/shared/arc/server/arcgis/server/tools/:$PATH
+
+# Help python/wine know where to load extra libraries from
+export LD_LIBRARY_PATH=/home/lenkne/shared/arc/libs:$LD_LIBRARY_PATH
+
+# pbsdsh loses nearly all environment variables, but arc's python requires LOGNAME to be set
+export LOGNAME=moor1090
+
+# Run the actual process
+/home/lenkne/shared/arc/server/arcgis/server/tools/python /home/lenkne/shared/solar_scripts/batchSolarAnalyst.py
+</pre>
+</li>
+<li>Submit the jobs with the <i>qsub</i> command.
+<pre>
+moor1090@node1082:/home/lenkne/shared/MinnesotaLiDAR_DSM/Output_SRR&gt; qsub 10_2.pbs 
+950738.node1082.localdomain
+moor1090@node1082:/home/lenkne/shared/MinnesotaLiDAR_DSM/Output_SRR&gt; qsub 100_5.pbs 
+950741.node1082.localdomain
+moor1090@node1082:/home/lenkne/shared/MinnesotaLiDAR_DSM/Output_SRR&gt; <blink>&#x258A</blink> 
+</pre>
+</li>
+
+        </ol>
+
+        <h2>Possibly Useful Notes</h2>
+        <ul>
+        <li>
+        Reset all jobs with the query:
+<pre class='sql'>
+UPDATE sa_fishnets SET id=id,modified_at=NULL,state=0 WHERE modified_at IS NOT NULL OR state&lt;&gt;0
+</pre>
+        </li>
+        <li>Reset all jobs which haven't been completed and which have been checked out for more than 5 hours:
+<pre class='sql'>
+UPDATE sa_fishnets SET state=0
+WHERE state &lt;&gt; 2
+AND
+(NOW() - modified_at) &gt; '05:00:00'::interval
+</pre>
+
+<li>Use <i>showq</i> to see how your jobs are doing:
+<pre>
+moor1090@node1082:~/solar_scripts/qsub&gt; showq -u moor1090
+
+active jobs------------------------
+JOBID              USERNAME      STATE PROCS   REMAINING            STARTTIME
+
+950754             moor1090    Running    80     1:08:23  Sat May 10 10:48:14
+
+1 active job            80 of 9728 processors in use by local jobs (0.82%)
+                       805 of 1114 nodes active      (72.26%)
+
+eligible jobs----------------------
+JOBID              USERNAME      STATE PROCS     WCLIMIT            QUEUETIME
+
+950602             moor1090       Idle  2400    15:00:00  Fri May  9 23:48:00
+
+1 eligible job    
+
+blocked jobs-----------------------
+JOBID              USERNAME      STATE PROCS     WCLIMIT            QUEUETIME
+
+
+0 blocked jobs   
+
+Total jobs:  2
+
+moor1090@node1082:~/solar_scripts/qsub&gt; <blink>&#x258A</blink> 
+</pre>
+<li>Use <i>checkjob</i> to see how a specific job is doing:
+<pre>
+
+moor1090@node1082:~/solar_scripts/qsub&gt; checkjob 950602 > cj
+job 950602
+
+AName: batchSolarAnalyst.pbs
+State: Idle 
+Creds:  user:moor1090  group:lenkne  account:lenkne  class:batch  qos:userres
+WallTime:   00:00:00 of 15:00:00
+BecameEligible: Sat May 10 09:12:34
+SubmitTime: Fri May  9 23:48:00
+  (Time Queued  Total: 11:53:54  Eligible: 4:00:45)
+
+TemplateSets:  DEFAULT
+NodeMatchPolicy: EXACTNODE
+Total Requested Tasks: 2400
+
+Req[0]  TaskCount: 2400  Partition: ALL
+Memory >= 2500M  Disk >= 0  Swap >= 0
+Dedicated Resources Per Task: PROCS: 1  MEM: 2500M
+
+Reserved Nodes:  (1:54:38 -> 16:54:38  Duration: 15:00:00)
+node[0011,0018,0035,0037-0038,0040-0045,0047-0054,0062,0091-0092,0110-0112,0136,0138-0143,0147,0149-0154,0156-0167,0170-0173,0180,0182,0184,0186-0192,0194-0198,0200-0212,0214,0216-0220,0222-0229,0231-0232,0250,0252,0270,0346,0516-0530,0539,0555-0556,0558-0559,0562-0566,0569-0576,0578,0584-0592,0594-0619,0621-0630,0633-0652,0654,0658-0664,0666-0686,0688-0691,0693-0707,0709-0723,0729-0736,0749-0751,0768-0770,0784,0786,0822,0824-0827,0830-0843]*8
+
+
+
+SystemID:   Moab
+SystemJID:  950602
+Notification Events: JobStart,JobEnd,JobFail
+
+BypassCount:    1
+Partition List: node1081
+Flags:          RESTARTABLE
+Attr:           checkpoint
+StartPriority:  966633
+Reservation '950602' (1:54:38 -> 16:54:38  Duration: 15:00:00)
+available for 8 tasks     - node[0011,0018,0041-0154,0156-0220,0222-0836]
+rejected for CPU          - (null)
+rejected for State        - (null)
+rejected for Reserved     - (null)
+NOTE:  job req cannot run in partition node1081 (available procs do not meet requirements : 2216 of 2400 procs found)
+idle procs: 2510  feasible procs: 2216
+
+Node Rejection Summary: [CPU: 150][State: 606][Reserved: 18]
+
+NOTE:  job violates constraints for partition jaypar (partition jaypar not in job partition mask)
+                                                                                                                                             
+NOTE:  job violates constraints for partition datapar (partition datapar not in job partition mask)                                          
+                                                                                                                                             
+NOTE:  job violates constraints for partition gagliardipar (partition gagliardipar not in job partition mask)                                
+                                                                                                                                             
+NOTE:  job violates constraints for partition longpar (partition longpar not in job partition mask)                                          
+                                                                                                                                             
+NOTE:  job violates constraints for partition sbpar (partition sbpar not in job partition mask)                                              
+                                                      
+moor1090@node1082:~/solar_scripts/qsub&gt; <blink>&#x258A</blink> 
+</pre>
+</li>
+<li>Use <i>showstart</i> to see an estimate of when your job will start
+<pre>
+moor1090@node1082:~/solar_scripts/qsub&gt; showstart 950602
+job 950602 requires 2400 procs for 15:00:00
+
+Estimated Priority based start in            7:09:29 on Sat May 10 18:56:12
+Estimated Priority based completion in      22:09:29 on Sun May 11 09:56:12
+moor1090@node1082:~/solar_scripts/qsub&gt; <blink>&#x258A</blink> 
+</pre>
+</li>
+<li>Use <i>qdel</i> to cancel a job from the queue
+<pre>
+moor1090@node1082:~/solar_scripts/qsub&gt; qdel 950662
+(no sample output...if I cancel a job I'll get some output to show)
+</pre>
+</li>
+
+            </ul>
+        </body>
+    </html>

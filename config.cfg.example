@@ -1,0 +1,34 @@
+# TODO: Make sure that all variables are actually used
+# TODO: Comment everything
+[postgres]
+# Postgres database connection options
+host = localhost
+user = solaruser
+pass = solarpass
+dbname = solar
+
+# Postgres query options
+[projection]
+srid = 26915
+prj_file = 26915.prj
+
+[processing]
+starting_x = 480815.0
+starting_y = 4979852.6
+cores = 8
+
+[makeDems]
+dem_fishnet_size = 10000
+dem_fishnet_rounding_digits = 3
+
+[blast2dem]
+additional_parameters = -first_only -elevation -drop_class 0 1 7 12
+
+[paths]
+las_dir = D:\SolarResourceData
+dem_output_dir = D:\MichaelTest\DemOutput
+solar_raster_output_dir = D:\MichaelTest\SolarRasterOutput
+temp_dir = z:\tmp
+workspace = Z:\home\arcgis\workspace
+extra_python_dirs = Z:\home\arcgis
+
