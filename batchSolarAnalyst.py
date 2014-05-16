@@ -54,7 +54,10 @@ arcpy.CheckOutExtension("spatial")
 print "Making temp paths"
 workspace = config.get('paths','temp_dir') + os.sep + tmpfile + '_workspace'
 if not os.path.isdir(workspace):
-    os.mkdir(workspace)
+    try:
+        os.mkdir(workspace)
+    except:
+        pass
 
 if not os.path.isdir(workspace):
     print "ERROR! Couldn't create workspace directory " + workspace
@@ -69,7 +72,10 @@ print "Making scratch workspace"
 scratchdir = config.get('paths','temp_dir') + os.sep + tmpfile + '_temp'
 
 if not os.path.isdir(scratchdir):
-    os.mkdir(scratchdir)
+    try:
+        os.mkdir(scratchdir)
+    except:
+        pass
 
 arcpy.env.scratchWorkspacea = scratchdir
 

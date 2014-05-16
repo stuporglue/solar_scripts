@@ -14,9 +14,11 @@ for img in glob.glob(out_path + '\\*.img'):
     updatewhere.append(img.replace(out_path + '\\SRR_','').replace('.img',''))
 
     if len(updatewhere) > max:
+        print "Updating " + str(max)
         q = "UPDATE sa_fishnets SET state=2 WHERE state<>2 AND id IN (" + ','.join(updatewhere) + ")"
         dbconn.run_query(q)
 
 if len(updatewhere) > 0:
+    print "Updating " + str(len(updatewhere))
     q = "UPDATE sa_fishnets SET state=2 WHERE state<>2 AND id IN (" + ','.join(updatewhere) + ")"
     dbconn.run_query(q)

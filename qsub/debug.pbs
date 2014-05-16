@@ -6,7 +6,7 @@
 #PBS -l nodes=8:ppn=8
 
 # Max time the job will run for
-#PBS -l walltime=00:30:00
+#PBS -l walltime=01:00:00
 
 # Amount of memory per core/job 
 #PBS -l pmem=2500mb
@@ -23,8 +23,9 @@
 
 echo "Job started on `hostname` at `date`"
 
+# TODO: Rsync data from shared to lustre
+
 #One instance per core is run (I think)
-pbsdsh /home/lenkne/shared/solar_scripts/qsub/batchSolarAnalyst_debug.sh  &
-#/home/lenkne/shared/arc/server/arcgis/server/tools/python /home/lenkne/shared/solar_scripts/batchSolarAnalyst.py
+pbsdsh /home/lenkne/shared/solar_scripts/qsub/batchSolarAnalyst.sh  &
 
 wait

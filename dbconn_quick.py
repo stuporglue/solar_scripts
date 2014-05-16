@@ -22,6 +22,7 @@ password = config.get('postgres','pass')
 def _getConn():
     cur = False
     print "Trying to connect to the database"
+    dbsleeper = 0.3 # start by sleeping for .3 seconds. Sleep at most 5 seconds
     while not cur:
         try:
             args = {
@@ -42,7 +43,7 @@ def _getConn():
             print "Failed as " + str(cur) + ' ' + str(sys.exc_info()[0])
             print "Sleeping for " + str(dbsleeper)
             cur = False
-            time.sleep(dbsleeper + time() % 1)
+            time.sleep(dbsleeper + time.time() % 1)
             if dbsleeper < 5:
                 dbsleeper *= 2
 
@@ -66,7 +67,7 @@ def run_query(q):
             except Exception as exp:
                 print "Exception"
                 print exp
-                time.sleep(dbsleeper + time() % 1)
+                time.sleep(dbsleeper + time.time() % 1)
 
 
 # Run the query and don't return the results
@@ -85,4 +86,4 @@ def send_query(q):
             except Exception as exp:
                 print "Exception"
                 print exp
-                time.sleep(dbsleeper + time() % 1)
+                time.sleep(dbsleeper + time.time() % 1)
