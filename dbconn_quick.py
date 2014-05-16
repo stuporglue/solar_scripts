@@ -54,9 +54,7 @@ def run_query(q):
     cur = False
     dbsleeper = 0.3 # start by sleeping for .3 seconds. Sleep at most 5 seconds
     while not cur:
-
         cur = _getConn()
-
         if cur:
             # Now that we have a connection, run the query and return the rows
             try:

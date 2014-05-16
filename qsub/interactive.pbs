@@ -3,10 +3,10 @@
 #PBS -A lenkne
 
 # Number of nodes we're asking for and number of proc
-#PBS -l nodes=20:ppn=8
+#PBS -l nodes=1:ppn=8
 
 # Max time the job will run for
-#PBS -l walltime=05:00:00
+#PBS -l walltime=00:30:00
 
 # Amount of memory per core/job 
 #PBS -l pmem=2500mb
@@ -21,9 +21,9 @@
 #PBS -N debugOut
 #####  P B   S  -l pmem=2500mb,nodes=2:ppn=8,pmem=4gb,walltime=24:00:00
 
-# TODO: Rsync data from shared to lustre
+#echo "Job started on `hostname` at `date`"
 
 #One instance per core is run (I think)
-pbsdsh /home/lenkne/shared/solar_scripts/qsub/batchSolarAnalyst.sh  &
+#pbsdsh /home/lenkne/shared/solar_scripts/qsub/batchSolarAnalyst_debug.sh  &
 
-wait
+#wait
