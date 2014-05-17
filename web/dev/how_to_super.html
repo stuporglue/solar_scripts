@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
 <html>
-    <head>
-        <meta charset='utf-8'>
-        <title>How to be super</title>
-        <style type='text/css'>
+<head>
+<meta charset='utf-8'>
+<title>How to be super</title>
+<style type='text/css'>
 pre {
     color: #00ff00;
     background-color: black;
@@ -24,112 +24,28 @@ pre.code {
     color: black;
     background-color: #ccc;
 }
-        </style>
-    </head>
-    <body>
-        <h1>How To Run ArcPy Scripts On Itasca</h1>
-        <h2>Environment</h2>
-        <p>
-        Here's the basic rundown on how we ran our ArcPy scripts on the <a href='https://www.msi.umn.edu/hpc/itasca'>Itasca</a> supercomputer. 
-        </p>
-        <p>
-        I'm doing all these steps on Debian Linux. Your initial setup might be 
-        different, especially on Windows. There you'll want to use <a href='http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html'>putty.exe</a> to connect.
-        </p>
 
-        <h2>ArcGIS Server For Linux</h2>
-        <p>
-            In order to use ArcPy on ArcGIS Server For Linux you must be logged 
-            in as the same user who installed ArcGIS Server. This means that instead of 
-            something sane and reasonable like, oh I don't know, the folks running the supercomputer 
-            installing ArcServer and letting everyone use it, you need to install
-            it yourself in your own directory. 
-        </p>
-        <p>The easiest way to install ArcGIS Server is from a machine with X11 forwarding. This could be a
-        Linux machine, or a Mac (open the X11 terminal instead of Terminal.app) or a Windows machine with X11
-        configured. Linux or a Mac will be easiest. 
-        </p>
-        <p>
-        Download ArcGIS Server to your local machine. If it's an .iso you won't have 
-        permission to mount it on the supercomputer anyways. Mount the .iso and copy the
-        ArcGISServer directory to the supercomputer.
-        </p>
-        <p>
-        Also copy your authorization file to the supercomputer before starting the install.
-        </p>
-        <p>Now connect with X forwarding. If you're using a terminal, it will look like this:
-        <pre>
-
-stuporglue@speed:~$ ssh -X moor1090@login.msi.umn.edu
-Last login: Sat May 10 08:14:31 2014 from vpn0-974.vpn.umn.edu
--------------------------------------------------------------------------------
-              University of Minnesota Supercomputing Institute
--------------------------------------------------------------------------------
-For assistance please contact us at
-https://www.msi.umn.edu/support/help.html,
-help@msi.umn.edu, or 612-626-0802.
--------------------------------------------------------------------------------
-This is a login host. Please avoid running resource-intensive tasks on 
-this machine. Instead, use the isub command to be logged into a node 
-appropriate for long-running interactive jobs. See 'isub --help' for options
-or https://www.msi.umn.edu/remote-access for more information.
-
-Or, for non-interactive tasks, submit your job to one of MSI's HPC 
-resources (details at https://www.msi.umn.edu/hpc) or lab queues (details
-at https://www.msi.umn.edu/labs/pbs).
--------------------------------------------------------------------------------
--bash-4.1$ ssh -X itasca
-Last login: Sat May 10 07:46:14 2014 from 128.101.189.229
-
--------------------------------------------------------------------------------
-             University of Minnesota Supercomputing Institute
-                                 Itasca
-                         HP c7000 Linux Cluster
--------------------------------------------------------------------------------
-For assistance please contact us at https://www.msi.umn.edu/support/help.html
-help@msi.umn.edu, or (612)626-0802.
--------------------------------------------------------------------------------
-The available scratch space on Itasca is /lustre.  All files in the scratch
-directory that have not been modified for 30 days will be deleted. 
--------------------------------------------------------------------------------
-Home directories are snapshot protected. If you accidentally delete a file in
-your home directory, type "cd .snapshot" then "ls -lt" to list the snapshots
-available in order from most recent to oldest.
-
-The file you need can be copied from a snapshot back to its former place in 
-your home directory.
--------------------------------------------------------------------------------
-
-April 2014 -- Changes to the Itasca System
- 
-   * Itasca now requires logins through the MSI login systems, see
-      https://www.msi.umn.edu/remote-access for more information
-   * The default module for Gaussian09 has been changed to
-     gaussian/g09.d01_itasca.  This new build will address some performance
-     issues with Linda parallel jobs.
-
--------------------------------------------------------------------------------
-
-moor1090@node1082:~&gt; <blink>&#x258A</blink> 
-        </pre>
-</p>
-<p>Run the <i>Setup</i> command
-<pre>
-moor1090@node1082:/home/lenkne/shared/arc/install> ./Setup
-</pre>
+.outdated {text-decoration:line-through}
+</style>
+</head>
+<body>
+<h1>How To Run ArcPy Scripts On Itasca</h1>
+<h2>Environment</h2>
+<p>
+Here's the basic rundown on how we ran our ArcPy scripts on the <a href='https://www.msi.umn.edu/hpc/itasca'>Itasca</a> supercomputer. 
 </p>
 <p>
-The installer should soon appear on your screen. Remember that even though the windows are appearing on
-your screen, everything is happening on the supercomputer and all paths are paths on the supercomputer
+I'm doing all these steps on Debian Linux. Your initial setup might be 
+different, especially on Windows. There you'll want to use <a href='http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html'>putty.exe</a> to connect.
 </p>
 
-        <h2>Connecting To Itasca</h2>
+<h2>Connecting To Itasca</h2>
 
-        <ol>
-            <li>Connect to the UMN VPN (<a href='http://sspu-test.oit.umn.edu/it/all-services/data-network/vpn/downloads-guides/index.htm'>Instructions</a>)</li>
-            <li>Connect to the MSI login node
+<ol>
+    <li>Connect to the UMN VPN (<a href='http://sspu-test.oit.umn.edu/it/all-services/data-network/vpn/downloads-guides/index.htm'>Instructions</a>)</li>
+    <li>Connect to the MSI login node
 
-            <pre>
+    <pre>
 stuporglue@speed:~$ ssh moor1090@login.msi.umn.edu
 moor1090@login.msi.umn.edu's password:
 Last login: Thu May  8 19:04:10 2014 from nat-10-22-95-242.uofm.wireless.umn.edu
@@ -150,13 +66,13 @@ resources (details at https://www.msi.umn.edu/hpc) or lab queues (details
 at https://www.msi.umn.edu/labs/pbs).
 -------------------------------------------------------------------------------
 -bash-4.1$ <blink>&#x258A</blink> 
-</pre>
+    </pre>
 
-            </li>
+    </li>
 
-            <li>Connect to Itasca
+    <li>Connect to Itasca
 
-            <pre>
+    <pre>
 -bash-4.1$ ssh itasca
 Password: 
 Last login: Fri May  9 14:58:51 2014 from 128.101.189.230
@@ -191,49 +107,137 @@ April 2014 -- Changes to the Itasca System
 -------------------------------------------------------------------------------
 
 moor1090@node1084:~&gt; <blink>&#x258A</blink> 
-</pre>            
+    </pre>            
 
-            </li>
-        </ol>
-
-        <h2>Random Notes</h2>
-        <ol>
-            <li>Jobs are submitted using qsub</li>
-            <li>Qsub scripts are named <i>whatever</i>.pbs</li>
-        </ol>
+    </li>
+</ol>
 
 
-        <h2>Running Interactive Jobs</h2>
-        <p>
-        Itasca isn't meant for running interactive jobs, but it's a good way to test your configuration before submitting batch jobs.
-        </p>
-        <ol>
-            <li>Create an Interactive Shell job <i>interactive_shell.pbs</i>
+<h2>ArcGIS Server For Linux</h2>
+<p>
+In order to use ArcPy on ArcGIS Server For Linux you must be logged 
+in as the same user who installed ArcGIS Server. This means that instead of 
+something sane and reasonable like, oh I don't know, the folks running the supercomputer 
+installing ArcServer and letting everyone use it, you need to install
+it yourself in your own directory. 
+</p>
+<p><span class='outdated'>The easiest way to install ArcGIS Server is from a machine with X11 forwarding.</span>
+You could install ArcGIS Server with a GUI through X11 forwarding.
+This could be a
+Linux machine, or a Mac (open the X11 terminal instead of Terminal.app) or a Windows machine with X11
+configured. Linux or a Mac will be easiest. 
+</p>
+<p>
+It is easier to run the installer in the terminal without SSH. It will work just fine through any SSH client.
+</p>
+<p>
+Download ArcGIS Server to your local machine. If it's an .iso you won't have 
+permission to mount it on the supercomputer anyways. Mount the .iso and copy the
+ArcGISServer directory to the supercomputer.
+</p>
+<p>
+Copy your authorization file to the supercomputer before starting the install.
+</p>
+<p>Run the <i>Setup</i> command
+<pre>
+moor1090@node1082:/home/lenkne/shared/arc/install> ./Setup
+</pre>
+</p>
+<p>
+The installer should soon appear in your console. Follow the steps. There are less than 10 questions it will ask you.
+</p>
 
-            <p>It should be a plain-text file with the following contents:</p>
-            <pre class='code'>
+<h3>Modifying ArcGIS Server For Cluster Use</h3>
+<p>Bizarrely, ArcGIS Server for Linux uses <a href='http://www.winehq.org/'>Wine</a> to run a Windows version of Python.</p>
+<p>
+When you run the python command on Linux, you're actually running a shell script which launches python.exe in a Wine environment.
+You will need to make a couple of changes to this python script and another environment variables script in order to use Python
+in a cluster environment.
+</p>
+<h4>Modify arcenv</h4>
+<p>Edit the file arcgis/server/framework/etc/arcenv. Replace
+<pre>DOTWINE="$ARCGISHOME/framework/runtime/.wine"</pre>
+with
+
+<pre>
+if [ "x$DOTWINE"="x"];then
+    DOTWINE="$ARCGISHOME/framework/runtime/.wine"
+fi
+</pre>
+</p>
+
+<h4>Add Ubuntu support for Xvfb</h4>
+<p>ArcGIS Python requires a GUI. The Windows/Wine/ArcPy scripts use Xvfb to provide a gui to write to, although you won't see anything that it's used for.</p>
+<p>ArcGIS Server comes with Xvfb libraries for RHEL and SuSE. Since we're on Ubuntu or Debian we'll symlink to the RHEL version and hope for the best (it works).
+You're going to want to symlink the name Ubuntu even if you're on Debian since the init_Xvfb.sh script uses the name Ubuntu.
+<pre>
+&gt; cd server/arcgis/server/framework/runtime/xvfb
+&gt; ln -s RHEL/ Ubuntu
+&gt; <blink>&#x258A</blink> 
+</pre>
+</p>
+<h5>Itasca Specific Note</h5>
+<p>The libXdmcp libraries that Xvfb is going to look for aren't on the compute nodes on Itasca. Create a directory and copy them from the login node to that directory. We'll use them in a minute.
+<pre>
+> mkdir arc/libs
+> cp -L /usr/lib64/libXdmcp.so* arc/libs/
+&gt; <blink>&#x258A</blink> 
+</pre>
+</p>
+
+<h2>Writing a Job Submission Script</h2>
+<p>Making an ArcGIS task work well on the cluster is going to be about removing bottlenecks and working around problems. Here are the main things I've come across so far.
+
+<ol>
+    <li>One process per wine dir</li>
+    <li>Concurrent File GeoDatabase Access</li>
+    <li>Slow access to datao</li>
+    <li>Wine is crashy</li>
+    <li>Wine directory gets corrupted</li>
+</ol
+
+What to do about these issues: Coming soon.>
+
+</p>
+
+<h2>Random Notes</h2>
+<ol>
+    <li>Jobs are submitted using qsub</li>
+    <li>Qsub scripts are named <i>whatever</i>.pbs</li>
+</ol>
+
+
+<h2>Running Interactive Jobs</h2>
+<p>
+Itasca isn't meant for running interactive jobs, but it's a good way to test your configuration before submitting batch jobs.
+</p>
+<ol>
+    <li>Create an Interactive Shell job <i>interactive_shell.pbs</i>
+
+    <p>It should be a plain-text file with the following contents:</p>
+    <pre class='code'>
 #!/bin/bash -l
 #PBS -l pmem=2150mb,nodes=1:ppn=8,walltime=00:20:00
-</pre>
-            </li>
-            <li>Specify that you want an interactive job by using <i>-I</i>
-            <pre>
+    </pre>
+    </li>
+    <li>Specify that you want an interactive job by using <i>-I</i>
+    <pre>
 moor1090@node1084:~/solar_scripts&gt; qsub -I interactive_shell.pbs 
 qsub: waiting for job 950429.node1081.localdomain to start
 qsub: job 950429.node1081.localdomain ready
 
 moor1090@node0051:~&gt; <blink>&#x258A</blink> 
-</pre>            
-            </li>
-            <li>You should now be in the same environment that your scripts will run in.</li>
-            <li>To exit the environment, just type exit. You will be automatically kicked out when the <i>walltime</i> specified in your pbs script expires.</li>
-        </ol>
+    </pre>            
+    </li>
+    <li>You should now be in the same environment that your scripts will run in.</li>
+    <li>To exit the environment, just type exit. You will be automatically kicked out when the <i>walltime</i> specified in your pbs script expires.</li>
+</ol>
 
-        <h2>Running Batch Jobs</h2>
-        <ol>
-            <li>Get your script to run successfully manually in interactive mode first.</li>
-            <li>Configure your job's PBS settings like so (this is 10_055.pbs):
-<pre class='code'>
+<h2>Running Batch Jobs</h2>
+<ol>
+    <li>Get your script to run successfully manually in interactive mode first.</li>
+    <li>Configure your job's PBS settings like so (this is 10_055.pbs):
+    <pre class='code'>
 #!/bin/bash -l
 
 # This is the account the SU (Service Units) will be deducted from. 
@@ -259,12 +263,12 @@ moor1090@node0051:~&gt; <blink>&#x258A</blink>
 # Run 8 instances of batchSolarAnalyst
 pbsdsh -c 8 /home/lenkne/shared/solar_scripts/qsub/batchSolarAnalyst.sh &
 wait
-</pre>
-You can name the pbs script whatever you want. I named several scripts by the number of nodes and the time they would reserve.
-            </li>
-<li>The file <i>batchSolarAnalyst.sh</i> should set up any environment variables you need and launch the actual script. eg:
+    </pre>
+    You can name the pbs script whatever you want. I named several scripts by the number of nodes and the time they would reserve.
+    </li>
+    <li>The file <i>batchSolarAnalyst.sh</i> should set up any environment variables you need and launch the actual script. eg:
 
-<pre class='code'>
+    <pre class='code'>
 #!/bin/bash
 
 # Set up paths for python
@@ -278,38 +282,39 @@ export LOGNAME=moor1090
 
 # Run the actual process
 /home/lenkne/shared/arc/server/arcgis/server/tools/python /home/lenkne/shared/solar_scripts/batchSolarAnalyst.py
-</pre>
-</li>
-<li>Submit the jobs with the <i>qsub</i> command.
-<pre>
+    </pre>
+    </li>
+    <li>Submit the jobs with the <i>qsub</i> command.
+    <pre>
 moor1090@node1082:/home/lenkne/shared/MinnesotaLiDAR_DSM/Output_SRR&gt; qsub 10_2.pbs 
 950738.node1082.localdomain
 moor1090@node1082:/home/lenkne/shared/MinnesotaLiDAR_DSM/Output_SRR&gt; qsub 100_5.pbs 
 950741.node1082.localdomain
 moor1090@node1082:/home/lenkne/shared/MinnesotaLiDAR_DSM/Output_SRR&gt; <blink>&#x258A</blink> 
-</pre>
-</li>
+    </pre>
+    </li>
+</ol>
 
-        </ol>
-
-        <h2>Possibly Useful Notes</h2>
-        <ul>
-        <li>
-        Reset all jobs with the query:
-<pre class='sql'>
+<h2>Possibly Useful Notes</h2>
+<ul>
+    <li>
+    Reset all jobs with the query:
+    <pre class='sql'>
 UPDATE sa_fishnets SET id=id,modified_at=NULL,state=0 WHERE modified_at IS NOT NULL OR state&lt;&gt;0
-</pre>
-        </li>
-        <li>Reset all jobs which haven't been completed and which have been checked out for more than 5 hours:
-<pre class='sql'>
+    </pre>
+    </li>
+    <li>Reset all jobs which haven't been completed and which have been checked out for more than 5 hours:
+    <pre class='sql'>
 UPDATE sa_fishnets SET state=0
-WHERE state &lt;&gt; 2
+WHERE state&lt;&gt;2
 AND
 (NOW() - modified_at) &gt; '05:00:00'::interval
-</pre>
+AND 
+state&lt;&gt;0
+    </pre>
 
-<li>Use <i>showq</i> to see how your jobs are doing:
-<pre>
+    <li>Use <i>showq</i> to see how your jobs are doing:
+    <pre>
 moor1090@node1082:~/solar_scripts/qsub&gt; showq -u moor1090
 
 active jobs------------------------
@@ -336,9 +341,9 @@ JOBID              USERNAME      STATE PROCS     WCLIMIT            QUEUETIME
 Total jobs:  2
 
 moor1090@node1082:~/solar_scripts/qsub&gt; <blink>&#x258A</blink> 
-</pre>
-<li>Use <i>checkjob</i> to see how a specific job is doing:
-<pre>
+    </pre>
+    <li>Use <i>checkjob</i> to see how a specific job is doing:
+    <pre>
 
 moor1090@node1082:~/solar_scripts/qsub&gt; checkjob 950602 > cj
 job 950602
@@ -384,35 +389,35 @@ idle procs: 2510  feasible procs: 2216
 Node Rejection Summary: [CPU: 150][State: 606][Reserved: 18]
 
 NOTE:  job violates constraints for partition jaypar (partition jaypar not in job partition mask)
-                                                                                                                                             
+
 NOTE:  job violates constraints for partition datapar (partition datapar not in job partition mask)                                          
-                                                                                                                                             
+
 NOTE:  job violates constraints for partition gagliardipar (partition gagliardipar not in job partition mask)                                
-                                                                                                                                             
+
 NOTE:  job violates constraints for partition longpar (partition longpar not in job partition mask)                                          
-                                                                                                                                             
+
 NOTE:  job violates constraints for partition sbpar (partition sbpar not in job partition mask)                                              
-                                                      
+
 moor1090@node1082:~/solar_scripts/qsub&gt; <blink>&#x258A</blink> 
-</pre>
-</li>
-<li>Use <i>showstart</i> to see an estimate of when your job will start
-<pre>
+    </pre>
+    </li>
+    <li>Use <i>showstart</i> to see an estimate of when your job will start
+    <pre>
 moor1090@node1082:~/solar_scripts/qsub&gt; showstart 950602
 job 950602 requires 2400 procs for 15:00:00
 
 Estimated Priority based start in            7:09:29 on Sat May 10 18:56:12
 Estimated Priority based completion in      22:09:29 on Sun May 11 09:56:12
 moor1090@node1082:~/solar_scripts/qsub&gt; <blink>&#x258A</blink> 
-</pre>
-</li>
-<li>Use <i>qdel</i> to cancel a job from the queue
-<pre>
+    </pre>
+    </li>
+    <li>Use <i>qdel</i> to cancel a job from the queue
+    <pre>
 moor1090@node1082:~/solar_scripts/qsub&gt; qdel 950662
 (no sample output...if I cancel a job I'll get some output to show)
-</pre>
-</li>
+    </pre>
+    </li>
 
-            </ul>
-        </body>
-    </html>
+</ul>
+</body>
+</html>
