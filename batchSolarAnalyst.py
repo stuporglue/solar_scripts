@@ -114,7 +114,8 @@ UPDATE """ + config.get('postgres','schema') + "." + config.get('postgres','sa_f
     SET state=1
     WHERE sa.id in (
         SELECT id FROM """ + config.get('postgres','sa_fishnet_table') + """ WHERE state=0
-        ORDER BY ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(""" + config.get('processing','starting_x') + """,""" + config.get('processing','starting_y') + """),""" + config.get('projection','srid') + """))
+        ORDER BY RANDOM()
+        --- ST_Distance(the_geom,ST_SetSrid(ST_MakePoint(""" + config.get('processing','starting_x') + """,""" + config.get('processing','starting_y') + """),""" + config.get('projection','srid') + """))
         LIMIT 3 FOR UPDATE
     )
 RETURNING

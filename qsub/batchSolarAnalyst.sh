@@ -11,11 +11,13 @@ MAXTRIES=100
 # Any logmsg with a level under DEBUG_LEVEl will be printed
 # Level 0 -- normal messages
 # Level 1 -- debug messages
-# Level 2 -- very verbose
-DEBUG_LEVEL=2
+# Level 2 -- verbose
+# Level 3 -- very verbose
+DEBUG_LEVEL=4
 
 REALARCINSTALL="/home/lenkne/shared/arc/server/arcgis/server"
 REALDATADIR="/home/lenkne/shared"
+REALGDBDIR=$REALDATADIR
 
 # Make a fake Wine directory for each individual job
 FAKEWINETOP="/scratch/lenkne/fakeWine_$(hostname)_$PBS_VNODENUM"
@@ -24,14 +26,15 @@ FAKEDATADIR="/scratch/lenkne/data"
 
 
 
+# Temp commands
+rm -rf $FAKEDATADIR
+
 
 
 #######################################################################################
 #
 # Initial setup and function declarations
 #
-# Make the base data dir now so that we can use a sub directory creation as a mutex later
-mkdir -p $FAKEDATADIR
 
 export PATH=$REALARCINSTALL/tools/:$PATH
 export LD_LIBRARY_PATH=$REALDATADIR/arc/libs:$LD_LIBRARY_PATH
@@ -60,7 +63,7 @@ function fakedirs {
     # For every file in the sourcedir, symlink to it in the dest dir
     for i in $sourcedr/*;do
         if [[ ! -e $(basename $i) ]];then
-            logmsg "Linking $i to $(pwd)/$(basename $i)" 2
+            logmsg "Linking $i to $(pwd)/$(basename $i)" 3
             ln -s $i
         fi
     done
@@ -78,7 +81,7 @@ function logmsg {
     fi
     
     if [[ $DEBUG_LEVEL -gt $level ]];then
-        echo $1
+        echo "$(hostname)/$PBS_NODENUM/$PBS_VNODENUM $(date): $1"
     fi
 }
 
@@ -91,19 +94,19 @@ function logmsg {
 
 starttime=$(date +%s)
 
-logmsg "$(hostname) Cloning Wine" 1
+logmsg "Cloning Wine" 1
 fakedirs $REALARCINSTALL $FAKEWINETOP
 fakedirs $REALARCINSTALL/bin $FAKEWINETOP/bin
 fakedirs $REALARCINSTALL/framework $FAKEWINETOP/framework
 fakedirs $REALARCINSTALL/framework/runtime $FAKEWINETOP/framework/runtime
  
 # Copy the actual wine directory now
-logmsg "$(hostname) copying actual .wine dir #1" 1
+logmsg "Copying actual .wine dir #1" 1
 if [[ -h $FAKEWINETOP/framework/runtime/.wine ]];then rm .wine;fi
 logmsg "rsync -rl $REALARCINSTALL/framework/runtime/.wine/ $FAKEWINETOP/framework/runtime/.wine/" 1
 rsync -rl $REALARCINSTALL/framework/runtime/.wine/ $FAKEWINETOP/framework/runtime/.wine/
 
-logmsg "$(hostname) copying actual .wine dir #2" 1
+logmsg "Copying actual .wine dir #2" 1
 if [[ -h $FAKEWINETOP/bin/.wine ]];then rm .wine; fi
 logmsg "rsync -rl $REALARCINSTALL/bin/.wine/ $FAKEWINETOP/bin/.wine/" 1
 rsync -rl $REALARCINSTALL/bin/.wine/ $FAKEWINETOP/bin/.wine/
@@ -128,29 +131,32 @@ logmsg "It took $((endtime - starttime)) seconds to clone wine" 1
 # the GDB to the local node. We're going to use mkdir to acquire and release 
 # a file lock
 
-# Only one instance of the script should succeed in running mkdir
-# Possibly zero instances if we run a second batch job and end up on the same node as we were on before
+# Only one instance of the script should succeed in running mkdir for the prepping_for_ directory
+# That script will use rsync to make sure that the DSM is available locally and then create ready_for_*
+# The other scripts will loop and wait for the ready_for directory to become available
 
 # We're going to use mkdir to acquire a mutex on the directory
-if mkdir "$FAKEDATADIR/ready_for_$PBS_JOBID" 2>/dev/null; then
+mkdir -p $FAKEDATADIR
+if mkdir "$FAKEDATADIR/prepping_for_$PBS_JOBID" 2>/dev/null; then
     starttime=$(date +%s)
-    logmsg "$PBS_NODENUM/$PBS_VNODENUM got the lock on $(hostname)" 1
+    logmsg "$PBS_NODENUM/$PBS_VNODENUM got the lock" 1
     mkdir -p $FAKEDATADIR/MinnesotaLiDAR_DSM
-    echo "rsync -rl $REALDATADIR/MinnesotaLiDAR_DSM/MN_DEM.gdb/ $FAKEDATADIR/MinnesotaLiDAR_DSM/MN_DEM.gdb/" 1
-    rsync -rl $REALDATADIR/MinnesotaLiDAR_DSM/MN_DEM.gdb/ $FAKEDATADIR/MinnesotaLiDAR_DSM/MN_DEM.gdb/
-    fakedirs $REALDATADIR/MinnesotaLiDAR_DSM $FAKEDATADIR/MinnesotaLiDAR_DSM
+    echo "rsync -rl $REALGDBDIR/MinnesotaLiDAR_DSM/MN_DEM.gdb/ $FAKEDATADIR/MinnesotaLiDAR_DSM/MN_DEM.gdb/" 1
+    rsync -rl $REALGDBDIR/MinnesotaLiDAR_DSM/MN_DEM.gdb/ $FAKEDATADIR/MinnesotaLiDAR_DSM/MN_DEM.gdb/
+    fakedirs $REALGDBDIR/MinnesotaLiDAR_DSM $FAKEDATADIR/MinnesotaLiDAR_DSM
     mkdir "$FAKEDATADIR/ready_for_$PBS_JOBID"
     endtime=$(date +%s)
     logmsg "It took $((endtime - starttime)) seconds to clone the gdb" 1
 else
     # The scripts that didn't mkdir will loop waiting for ready_to_use to exist
-    logmsg "$PBS_NODENUM/$PBS_VNODENUM waiting for lock release on $(hostname)" 1
+    logmsg "Waiting for lock release" 2
     while [[ ! -d $FAKEDATADIR/ready_for_$PBS_JOBID ]];do
+        logmsg "$FAKEDATADIR/ready_for_$PBS_JOBID not yet present" 3
         sleep 5
     done
+    logmsg "Found lock release!" 1
 fi
 #######################################################################################
-
 
 
 
