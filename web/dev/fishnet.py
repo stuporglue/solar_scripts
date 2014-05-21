@@ -79,9 +79,11 @@ for x in range(1,10):
 for x in range(10,100,10):
     out += timeLeft(obj[0]['count'],obj[2]['avg'],x)
 
-for x in range(100,1001,100):
+for x in range(100,1601,100):
     out += timeLeft(obj[0]['count'],obj[2]['avg'],x)
-
+    
+for x in range(2000,8001,500):
+    out += timeLeft(obj[0]['count'],obj[2]['avg'],x)
 
 print """
 <h2>Projected Status</h2>
