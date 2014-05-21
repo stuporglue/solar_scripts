@@ -107,11 +107,14 @@ out_direct_radiation_raster = '' # optional output - direct radiation
 out_diffuse_radiation_raster = '' # optional output - diffuse radiation
 out_direct_duration_raster = '' # optional output - direct duration
 
+hostname = os.getenv('HOSTNAME') or os.getenv('COMPUTERNAME') or 'Unknown host'
+
 
 # Database queries to manage processing
 reserveQuery = """
 UPDATE """ + config.get('postgres','schema') + "." + config.get('postgres','sa_fishnet_table') + """ sa
-    SET state=1
+    SET state=1,
+    hostname='""" + hostname + """'
     WHERE sa.id in (
         SELECT id FROM """ + config.get('postgres','sa_fishnet_table') + """ WHERE state=0
         ORDER BY RANDOM()
@@ -131,7 +134,8 @@ completeQuery = """
     UPDATE """ + config.get('postgres','schema') + "."  + config.get('postgres','sa_fishnet_table') + """ AS sa
     SET 
     state = c.newstate::integer,
-    time = c.runtime::float
+    time = c.runtime::float,
+    hostname='""" + hostname + """'
     FROM (values
     ('UPDATEVALUES')) AS c(updateid,newstate,runtime)
     WHERE
