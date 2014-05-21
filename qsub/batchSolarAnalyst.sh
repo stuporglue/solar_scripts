@@ -41,6 +41,7 @@ export LD_LIBRARY_PATH=$REALDATADIR/arc/libs:$LD_LIBRARY_PATH
 export LOGNAME=$(stat -c %U $REALARCINSTALL)
 export WINEDEBUG="-all"
 export DOTWINE=$REALARCINSTALL/framework/runtime/.wine
+export HOSTNAME=$(hostname)
 
 # Make a symlink clone of a directory
 # fakedirs(/home/lenkne/shared/arc/server/rcgis/server/,/scratch/lenkne/fakeWine_host_jobno)

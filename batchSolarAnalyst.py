@@ -107,11 +107,14 @@ out_direct_radiation_raster = '' # optional output - direct radiation
 out_diffuse_radiation_raster = '' # optional output - diffuse radiation
 out_direct_duration_raster = '' # optional output - direct duration
 
+hostname = os.getenv('HOSTNAME') or os.getenv('COMPUTERNAME') or 'Unknown host'
+
 
 # Database queries to manage processing
 reserveQuery = """
 UPDATE """ + config.get('postgres','schema') + "." + config.get('postgres','sa_fishnet_table') + """ sa
-    SET state=1
+    SET state=1,
+    hostname='""" + hostname + """'
     WHERE sa.id in (
         SELECT id FROM """ + config.get('postgres','sa_fishnet_table') + """ WHERE state=0
         ORDER BY RANDOM()
@@ -131,7 +134,8 @@ completeQuery = """
     UPDATE """ + config.get('postgres','schema') + "."  + config.get('postgres','sa_fishnet_table') + """ AS sa
     SET 
     state = c.newstate::integer,
-    time = c.runtime::float
+    time = c.runtime::float,
+    hostname='""" + hostname + """'
     FROM (values
     ('UPDATEVALUES')) AS c(updateid,newstate,runtime)
     WHERE
@@ -163,16 +167,21 @@ while len(res) > 0:
         # set processing environment
         arcpy.env.extent = arcpy.sa.Extent(x_min, y_min, x_max, y_max)
 
+        clipped_solar_raster_dir = out_path + os.sep + 'SRR_' + str(row['id'] / 1000 * 1000).zfill(4) + os.sep
+        clipped_solar_raster =  clipped_solar_raster_dir + 'SRR_' + str(row['id']) + '.img' # what raster format do we want???
+
+        if not os.path.exists(clipped_solar_raster_dir):
+            os.mkdir(clipped_solar_raster_dir)
+
+        if os.path.isfile(clipped_solar_raster):
+            print "WARNING: Overwriting existing solar raster image at " + clipped_solar_raster
+            os.unlink(clipped_solar_raster)
+            
         # run solar analyst
         try:
             solar_raster = arcpy.sa.AreaSolarRadiation(in_surface_raster, latitude, sky_size, time_configuration, day_interval, hour_interval, each_interval, z_factor, slope_aspect_input_type, calculation_directions, zenith_divisions, azimuth_divisions, diffuse_model_type, diffuse_proportion, transmissivity, out_direct_radiation_raster, out_diffuse_radiation_raster, out_direct_duration_raster)
             # clip to feature extent and saves output
             envelope = "{0} {1} {2} {3}".format(int(row['xmin']), int(row['ymin']), int(row['xmax']), int(row['ymax']))
-            clipped_solar_raster = out_path + os.sep + 'SRR_' + str(row['id']) + '.img' # what raster format do we want???
-
-            # Delete our output file if it already exists, effectively overwriting it
-            if os.path.isfile(clipped_solar_raster):
-                os.unlink(clipped_solar_raster)
 
             if not os.path.isfile(clipped_solar_raster):
                 clipped = arcpy.Clip_management(solar_raster, envelope, clipped_solar_raster) #, '', '-3.402823e+038', '', True)
