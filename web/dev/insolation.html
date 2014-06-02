@@ -37,7 +37,8 @@
             #r {
                 display: block;
                 position: absolute;
-                padding: 10px;
+                padding: 20px;
+                line-height:120%;
                 border: 2px solid #8b8b8b;
                 border-color:white;
                 border-radius: 0 25px 0 25px;
@@ -441,6 +442,7 @@
                     });
 
                     $("#HelpMe").click(function () {
+                        $("#r").hide();
                         $("#SplashScreen").fadeToggle('fast');
                     });
 
