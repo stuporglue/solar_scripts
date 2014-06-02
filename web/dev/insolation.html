@@ -242,6 +242,7 @@
         <script type='text/javascript' src='http://code.jquery.com/jquery-2.0.2.js'></script>
         <script type='text/javascript' src="http://js.arcgis.com/3.9/"></script>
         <script type='text/javascript'>
+        var layer;
             $(window).load(function(){
                 require([
                     "esri/map",
@@ -293,7 +294,6 @@
                         Geocoder, HomeButton, LocateButton,
                         parser, dom, domConstruct, query, Color,
                     on, domClass, dojoJson, registry, Query, QueryTask, esriConfig, BasemapToggle) {
-                var layer
 
                 parser.parse();
 
