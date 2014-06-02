@@ -555,7 +555,8 @@
                     }
 
                     // Click on map to query image service
-                    var clicky = map.on("click", pixelQuery);
+                    //var clicky = map.on("click", pixelQuery);  //for new
+                    var clicky = map.on("click", pixelClickHandler);  //for old
 
                     // Query technique, not yet working
 
@@ -595,6 +596,34 @@
 
                                     });
                     }
+                    
+                    // ajax/jsonp technique, use this to query map service until image service is lie
+                
+                    function pointSolar(x, y, sr) {
+                        console.log("Click handled!");
+                        $("#r").show();
+                
+                        var solarR = "http://geog-201458220.ad.umn.edu:6080/arcgis/rest/services/hen_ram_solar2/MapServer/identify?geometry=" + x + "%2C" + y + "&geometryType=esriGeometryPoint&sr=" + sr + "&layers=&layerDefs=&time=&layerTimeOptions=&tolerance=1&mapExtent=195135%2C5428039%2C195136%2C5428040&imageDisplay=1&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&dynamicLayers=&returnZ=false&returnM=false&gdbVersion=&f=pjson";
+                
+                        $.ajax({
+                            type: 'GET',
+                            url: solarR,
+                            dataType: 'jsonp',
+                            success: function (json) {
+                                var val = json.results[0].attributes["Pixel Value"];
+                                var v = val / 1000 / 365;
+                                var y = val / 1000;
+                                var result = "<strong>Insolation in kWh/m<sup>2</sup></strong><br />Total per Year: " + y.toFixed(2) + "<br />Avg per Day: " + v.toFixed(2);
+                                console.log(json);
+                                //$('#r').innerHTML = result;
+                                document.getElementById('r').innerHTML = result;
+                                //alert("Value is: " + json.results[0].attributes["Pixel Value"]);
+                            }
+                        });
+
+
+                    }
+                    
                     });
             });
         </script>
