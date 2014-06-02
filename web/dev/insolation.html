@@ -4,13 +4,17 @@
         <meta http-equiv="content-type" content="text/html; charset=UTF-8">
         <title>SolarP App</title>
 
+        <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.9/js/esri/css/esri.css">
+        <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.9/js/dojo/dijit/themes/tundra/tundra.css">
+
         <style type='text/css'>
-            html, body, #map, #mainWindow {
+            html, body, #map {
                 font-family: sans-serif;
                 height: 100%;
                 width: 100%;
                 margin: 0;
                 padding: 0;
+                overflow: hidden;
             }
 
             #header {
@@ -179,9 +183,6 @@
                 line-height: 30px;
             }
         </style>
-
-        <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.9/js/esri/css/esri.css">
-        <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.9/js/dojo/dijit/themes/tundra/tundra.css">
     </head>
     <body class="tundra">
 
@@ -313,7 +314,7 @@
                         solar: {
                             label: "Solar",
                             // TODO: Copy image to a real server
-                            url: "http://stuporglue.duckdns.org/solar_scripts/web/dev/solar_square.png"
+                            url: "http://stuporglue.github.io/solar_scripts/web/dev/solar_square.png"
                         }, hybrid: {
                             label: "Aerial",
                             url: "http://js.arcgis.com/3.7/js/esri/dijit/images/basemaps/hybrid.jpg"
