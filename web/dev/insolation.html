@@ -626,7 +626,19 @@
                                 var val = json.results[0].attributes["Pixel Value"];
                                 var v = val / 1000 / 365;
                                 var y = val / 1000;
-                                var result = "<H3><strong>INSOLATION (kWh/m<sup>2</sup>)</strong></H3><p>Total per Year: " + y.toFixed(2) + "<br />Avg per Day: " + v.toFixed(2)+"</p>";
+                                var quality = 0;
+                                switch (v){
+                                    case v>2.7:
+                                        quality = "Optimal";
+                                        break;
+                                    case v<1.7;
+                                        quality = "Poor";
+                                        break;
+                                    default:
+                                        quality = "Good";
+                                }
+
+                                var result = "<H3><strong>INSOLATION (kWh/m<sup>2</sup>)</strong></H3><p>Total per Year: " + y.toFixed(2) + "<br />Avg per Day: " + v.toFixed(2)+" (" + quality + ")</p>";
                                 console.log(json);
                                 //$('#r').innerHTML = result;
                                 document.getElementById('r').innerHTML = result;
