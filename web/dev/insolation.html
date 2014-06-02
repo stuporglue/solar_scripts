@@ -283,9 +283,21 @@
 
                 esriConfig.defaults.map.basemaps.solar = {
                     baseMapLayers: [
-                        { url: "http://geog-201458220.ad.umn.edu:6080/arcgis/rest/services/hen_ram_solar2/MapServer/" }
-                            ],
-                            title: "Solar"
+                        { 
+                            id : 'solar_layer',
+                            opacity: 1,
+                            isReference: true,
+                            visibility: true,
+                            url: "http://geog-201458220.ad.umn.edu:6080/arcgis/rest/services/hen_ram_solar2/MapServer/" 
+                        },
+                        {
+                            id: 'places',
+                            opacity: 1,
+                            visibility: true,
+                            url: 'http://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/'
+                        }
+                    ],
+                    title: "Solar"
                 };
 
                 var map = new Map("map", {
