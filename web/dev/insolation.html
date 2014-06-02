@@ -627,11 +627,11 @@
                                 var v = val / 1000 / 365;
                                 var y = val / 1000;
                                 var quality = 0;
-                                switch (v){
-                                    case v>2.7:
+                                switch (true){
+                                    case (v>2.7):
                                         quality = "Optimal";
                                         break;
-                                    case v<1.7;
+                                    case (v<1.7);
                                         quality = "Poor";
                                         break;
                                     default:
