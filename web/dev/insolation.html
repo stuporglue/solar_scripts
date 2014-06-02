@@ -469,7 +469,7 @@
                     });
 
                     $('#BasemapToggle').on('click',function(){
-                        if(layerflag=False){
+                        if(layerflag===False){
                             layer.hide();
                             layerflag=True;
                             }
@@ -477,9 +477,8 @@
                             layer.show();
                             layerflag=False;
                         }
-                        
+                    
                     });
-
 
                     $("#HelpMe").click(function () {
                         $("#r").fadeToggle('fast');
