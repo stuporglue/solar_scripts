@@ -342,7 +342,7 @@
                 var layer = new esri.layers.ArcGISDynamicMapServiceLayer("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/MN_Solar_Map_Web/MapServer/");
                 map.addLayer(layer);
                 
-                /*var toggle = new BasemapToggle({
+                var toggle = new BasemapToggle({
                     map: map,
                     basemap: "hybrid",
                     basemaps: {
@@ -356,7 +356,7 @@
                         }
                     }
                 }, "BasemapToggle");
-                toggle.startup();*/
+                toggle.startup();
 
 
                 var home = new HomeButton({
