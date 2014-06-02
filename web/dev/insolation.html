@@ -337,7 +337,10 @@
                     center: [-93.243322, 44.971795],
                     zoom: 13
                 });
-
+                
+                var layer = new esri.layers.ArcGISDynamicMapServiceLayer("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/MN_Solar_Map/MapServer");
+                map.addLayer(layer);
+                
                 var toggle = new BasemapToggle({
                     map: map,
                     basemap: "hybrid",
