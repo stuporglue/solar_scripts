@@ -38,6 +38,8 @@
                 display: block;
                 position: absolute;
                 padding: 20px;
+                padding-top:10px;
+                padding-bottom:10px;
                 line-height:120%;
                 border: 2px solid #8b8b8b;
                 border-color:white;
@@ -615,7 +617,7 @@
                                 var val = json.results[0].attributes["Pixel Value"];
                                 var v = val / 1000 / 365;
                                 var y = val / 1000;
-                                var result = "<H3><strong>INSOLATION (kWh/m)<sup>2</sup></strong></H3><p>Total per Year: " + y.toFixed(2) + "<br />Avg per Day: " + v.toFixed(2)+"</p>";
+                                var result = "<H3><strong>INSOLATION (kWh/m<sup>2</sup>)</strong></H3><p>Total per Year: " + y.toFixed(2) + "<br />Avg per Day: " + v.toFixed(2)+"</p>";
                                 console.log(json);
                                 //$('#r').innerHTML = result;
                                 document.getElementById('r').innerHTML = result;
