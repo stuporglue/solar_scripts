@@ -293,13 +293,8 @@
                         Geocoder, HomeButton, LocateButton,
                         parser, dom, domConstruct, query, Color,
                     on, domClass, dojoJson, registry, Query, QueryTask, esriConfig, BasemapToggle) {
+                var layer
 
-
-                        // Load Map and Map Elements
-                        //$(document).ready(function() {
-
-                            //     $('#SplashScreen').show();
-                //  });
                 parser.parse();
 
                 $('#SplashScreen').show();
@@ -339,7 +334,7 @@
                     zoom: 13
                 });
                 
-                var layer = new esri.layers.ArcGISDynamicMapServiceLayer("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/MN_Solar_Map_Web/MapServer/");
+                layer = new esri.layers.ArcGISDynamicMapServiceLayer("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/MN_Solar_Map_Web/MapServer/");
                 map.addLayer(layer);
                 
                 var toggle = new BasemapToggle({
