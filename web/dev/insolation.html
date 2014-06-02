@@ -243,6 +243,7 @@
         <script type='text/javascript' src="http://js.arcgis.com/3.9/"></script>
         <script type='text/javascript'>
         var layer;
+        var layerflag = False;
             $(window).load(function(){
                 require([
                     "esri/map",
@@ -468,7 +469,15 @@
                     });
 
                     $('#BasemapToggle').on('click',function(){
-                        layer.hide();
+                        if(layerflag=False){
+                            layer.hide();
+                            layerflag=True;
+                            }
+                        else(){
+                            layer.show();
+                            layerflag=False;
+                        }
+                        }
                     });
 
 
