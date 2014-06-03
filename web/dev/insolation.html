@@ -223,6 +223,7 @@
                 <a href="http://solarp.uspatial.umn.edu" style="color:#ff7400">solarp.uspatial.umn.edu</a>
                 </p>
                 <p>
+                <br />
                 <span id='closeSplash'>(X) CLOSE</span>
                 </p>
             </div>
@@ -298,6 +299,7 @@
                 parser.parse();
 
                 $('#SplashScreen').show();
+                $('#r').hide();
                 $('#closeSplash').on('click',function(){
                     $('#r').fadeToggle('fast');
                     $("#SplashScreen").fadeToggle('fast');
