@@ -299,7 +299,7 @@
                 parser.parse();
 
                 $('#SplashScreen').show();
-                $('#r').hide();
+               
                 $('#closeSplash').on('click',function(){
                     $('#r').fadeToggle('fast');
                     $("#SplashScreen").fadeToggle('fast');
@@ -597,8 +597,8 @@
                     }
 
                     // Click on map to query image service
-                    //var clicky = map.on("click", pixelQuery);  //for new
-                    var clicky = map.on("click", pixelClickHandler);  //for old
+                    var clicky = map.on("click", pixelQuery);  //for new
+                    //var clicky = map.on("click", pixelClickHandler);  //for old
 
                     // Query technique, not yet working
 
@@ -606,7 +606,7 @@
                         var query = new Query();
                         //var queryTask = new QueryTask("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/MN_DSM/ImageServer/identify");
                             //var queryTask = new QueryTask("http://geog-201458220.ad.umn.edu:6080/arcgis/rest/services/hen_ram_solar2/MapServer/identify");
-                                var queryTask = new QueryTask("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/MN_DSM/ImageServer");
+                                var queryTask = new QueryTask("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/MN_Solar/ImageServer");
 
                                     console.log(e.mapPoint);
 
