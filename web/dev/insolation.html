@@ -548,10 +548,10 @@
                             //new SimpleLineSymbol(
                                 //SimpleLineSymbol.STYLE_SOLID,
                                 //new Color([210, 105, 30, 0.5]),
-                //8),
-                //new Color([210, 105, 30, 0.9]));
-                graphic = new Graphic(pt, testSymbol);
-                map.graphics.add(graphic);
+                        //8),
+                        //new Color([210, 105, 30, 0.9]));
+                        graphic = new Graphic(pt, testSymbol);
+                        map.graphics.add(graphic);
                     }
 
 
@@ -653,7 +653,7 @@
                                     map.graphics.clear();
                                     
                                     // This is the point someone clicks
-                                    var point = evt.result.feature.geometry;
+                                    var point = e.mapPoint;
                                     
                                     // The draw symbol is the same as the other functions
                                     var symbol = testSymbol;
@@ -665,7 +665,7 @@
                                     map.graphics.add(graphic);
                                     
                                     //  Centers map at point
-                                    map.centerAt(point);
+                                    //map.centerAt(point);
                     }
                     
                     // ajax/jsonp technique, use this to query map service until image service is lie
