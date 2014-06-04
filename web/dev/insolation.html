@@ -648,6 +648,24 @@
                                         $("#r").show();
 
                                     });
+                                    
+                                    // removes all previous graphics (previous click)
+                                    map.graphics.clear();
+                                    
+                                    // This is the point someone clicks
+                                    var point = evt.result.feature.geometry;
+                                    
+                                    // The draw symbol is the same as the other functions
+                                    var symbol = testSymbol;
+                                    
+                                    //  This sets a new graphic using the clicked point and the symbol
+                                    var graphic = new Graphic(point, symbol);
+                                    
+                                    //  Adds graphic
+                                    map.graphics.add(graphic);
+                                    
+                                    //  Centers map at point
+                                    map.centerAt(point);
                     }
                     
                     // ajax/jsonp technique, use this to query map service until image service is lie
