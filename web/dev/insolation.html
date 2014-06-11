@@ -605,7 +605,7 @@
                         var query = new Query();
                         //var queryTask = new QueryTask("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/MN_DSM/ImageServer/identify");
                             //var queryTask = new QueryTask("http://geog-201458220.ad.umn.edu:6080/arcgis/rest/services/hen_ram_solar2/MapServer/identify");
-                        var queryTask = new QueryTask("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/MN_Solar/ImageServer/identify");
+                        var queryTask = new QueryTask("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/SolarP_IS/ImageServer/identify");
 
                                     console.log(e.mapPoint);
 
@@ -670,7 +670,7 @@
                     // ajax/jsonp technique, use this to query map service until image service is lie
                 
                     function pointSolar(x, y, sr) {
-                        console.log("Click handled!");
+                        //console.log("Click handled!");
                         $("#r").show();
                 
                         //var solarR = "http://geog-201458220.ad.umn.edu:6080/arcgis/rest/services/hen_ram_solar2/MapServer/identify?geometry=" + x + "%2C" + y + "&geometryType=esriGeometryPoint&sr=" + sr + "&layers=&layerDefs=&time=&layerTimeOptions=&tolerance=1&mapExtent=195135%2C5428039%2C195136%2C5428040&imageDisplay=1&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&dynamicLayers=&returnZ=false&returnM=false&gdbVersion=&f=pjson";
