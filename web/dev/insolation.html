@@ -335,7 +335,17 @@
                     zoom: 13
                 });
                 
-                layer = new esri.layers.ArcGISDynamicMapServiceLayer("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/MN_Solar_Map_Web/MapServer/");
+                //Display solar using a map service
+                //layer = new esri.layers.ArcGISDynamicMapServiceLayer("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/MN_Solar_Map_Web/MapServer/");
+                //map.addLayer(layer);
+                
+                //Display solar using an image service with raster function for color ramp
+                var params = new ImageServiceParameters();
+                params.noData = 0;
+                var layer = new ArcGISImageServiceLayer("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/SolarP_ISv2/ImageServer", {
+                imageServiceParameters: params,
+                opacity: 1.0
+                });
                 map.addLayer(layer);
                 
                 var toggle = new BasemapToggle({
