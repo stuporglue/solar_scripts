@@ -53,7 +53,58 @@
                 font-size: 18px;
                 color:#ffffff;
             }
-
+			
+			#utilLink {
+                display: block;
+				  position: absolute;
+                padding-left: 20px;
+                padding-right: 20px;
+                padding-top:5px;
+                padding-bottom:5px;
+                line-height:120%;
+                border: 2px solid #8b8b8b;
+                border-color:white;
+                border-radius: 0 25px 0 25px;
+                background-color: #474343;
+                z-index: 3;
+                top: 205px;
+                left: 66px;
+                font-family: "TrebuchetMS";
+                font-size: 16px;
+                color:#ff7400;
+            }
+			
+			a {
+				 font-family: "TrebuchetMS";
+               font-size: 16px;
+                color:#ff7400;
+			}
+			
+			a:hover {
+				color:#F65D23;
+					
+			}
+			
+			#utilInfo {
+                display: block;
+				position: absolute;
+                padding-left: 20px;
+                padding-right: 20px;
+                padding-top:5px;
+                padding-bottom:5px;
+                line-height:120%;
+                border: 2px solid #8b8b8b;
+                border-color:white;
+                border-radius: 0 25px 0 25px;
+                background-color: #474343;
+                z-index: 3;
+                top: 205px;
+                left: 66px;
+                font-family: "TrebuchetMS";
+                font-size: 18px;
+                color:#ffffff;
+            }
+			
             #HomeButton {
                 position: absolute;
                 top: 87px;
@@ -162,6 +213,10 @@
             #closeSplash {
                 cursor: pointer;
             }
+			
+			#badData {
+                cursor: pointer;
+            }
 
             #closeSplash:hover {
                 text-decoration: underline;
@@ -221,6 +276,7 @@
                 <p><strong>LEARN MORE:</strong><br />
                 <a href="http://solarp.uspatial.umn.edu" style="color:#ff7400">solarp.uspatial.umn.edu</a>
                 </p>
+                
                 <p>
                 <br />
                 <span id='closeSplash'>(X) CLOSE</span>
@@ -231,6 +287,8 @@
 
         <div id="search"></div>
         <div id="r"></div>
+		<div id="utilLink"><u>View Utility Provider Info >></u></div>
+		<div id="utilInfo"></div>
         <div id="HomeButton"></div>
         <div id='currentLoc'>&nbsp;</div>
         <div id="BasemapToggle"></div>
@@ -243,6 +301,7 @@
         <script type='text/javascript'>
         var layer;
         var layerflag = 0;
+		var utilLinkFlag = 0;
             $(window).load(function(){
                 require([
                     "esri/map",
@@ -283,6 +342,7 @@
                     "esri/tasks/QueryTask",
                     "esri/config",
                     "esri/dijit/BasemapToggle",
+					"esri/InfoTemplate",
 
                     "dijit/layout/BorderContainer", "dijit/layout/ContentPane",
                     "dijit/form/Button", "dojo/domReady!"], function (
@@ -293,20 +353,51 @@
                         screenUtils, urlUtils, esriConfig, esriRequest,
                         Geocoder, HomeButton, LocateButton,
                         parser, dom, domConstruct, query, Color,
-                    on, domClass, dojoJson, registry, Query, QueryTask, esriConfig, BasemapToggle) {
+                    on, domClass, dojoJson, registry, Query, QueryTask, esriConfig, BasemapToggle, InfoTemplate) {
 
                 parser.parse();
-
+				
                 $('#SplashScreen').show();
+				$('#utilLink').hide()
+				$('#utilInfo').hide()
+				$('#r').hide()
                
                 $('#closeSplash').on('click',function(){
                     $('#r').fadeToggle('fast');
                     $("#SplashScreen").fadeToggle('fast');
+										
                 });
 
                 $('#map').on('click',function(){
                     $('#SplashScreen').hide();
+					
                 });
+				
+				$('#utilLink').on('click',function(){
+					$('#utilLink').fadeToggle('fast');
+					$('#utilInfo').slideDown();
+                    //$('#utilInfo').fadeToggle('fast');
+                  										
+                });
+				
+				$('#utilInfo').on('click',function(){
+					$('#utilLink').fadeToggle('slow');
+					$('#utilInfo').slideUp();
+                    //$('#utilInfo').fadeToggle('fast');
+                  										
+                });
+				
+				$('#badData').on('click',function(){
+				
+			        console.log("Email click handled!");
+					//var email = "cmartin616@gmail.com";
+					//var subject = "Test";
+					//var body = "Double Test, dude";
+					//document.write("<a href=\"mailto:"+ email +"\?subject="+ subject +"\&body="+ body +"\"send me an email</a>");
+					//document.write("<form name="form" action=\"mailto:"+ email +"\?subject="+ subject +"\&body="+ body +"\" method=\"post\" enctype=\"text/plain\"></form>");
+					//<form name="form" action=\"mailto:"+ email +"\?subject="+ subject +"\&body="+ body +"\" method=\"post\" enctype=\"text/plain\"></form>") ;
+				 	//<form name="form" action=\"mailto:"+ email +"\?subject="+ subject +"\&body="+ body +"\" method=\"post\" enctype=\"text/plain\"></form>");
+				});
                 
                
                 esriConfig.defaults.map.basemaps.solar = {
@@ -335,18 +426,16 @@
                     zoom: 13
                 });
                 
-                //Display solar using a map service
                 //layer = new esri.layers.ArcGISDynamicMapServiceLayer("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/MN_Solar_Map_Web/MapServer/");
                 //map.addLayer(layer);
-                
-                //Display solar using an image service with raster function for color ramp
-                var params = new ImageServiceParameters();
-                params.noData = 0;
-                var layer = new ArcGISImageServiceLayer("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/SolarP_ISv2/ImageServer", {
-                imageServiceParameters: params,
-                opacity: 1.0
-                });
-                map.addLayer(layer);
+				
+				var params = new ImageServiceParameters();
+        params.noData = 0;
+        var layer = new ArcGISImageServiceLayer("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/SolarP_ISv2/ImageServer", {
+          imageServiceParameters: params,
+          opacity: 1.0
+        });
+        map.addLayer(layer);
                 
                 var toggle = new BasemapToggle({
                     map: map,
@@ -573,6 +662,7 @@
                     }
 
                     function createToolbar(themap) {
+					
                         toolbar = new Draw(map);
                         toolbar.on("draw-end", addToMap);
                     }
@@ -612,11 +702,12 @@
                     // Query technique, not yet working
 
                     function pixelQuery(e) {
+						utilLinkflag = 0
                         var query = new Query();
                         //var queryTask = new QueryTask("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/MN_DSM/ImageServer/identify");
                             //var queryTask = new QueryTask("http://geog-201458220.ad.umn.edu:6080/arcgis/rest/services/hen_ram_solar2/MapServer/identify");
-                        var queryTask = new QueryTask("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/SolarP_IS/ImageServer/identify");
-
+                        //var queryTask = new QueryTask("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/MN_Solar/ImageServer/identify");
+							var queryTask = new QueryTask("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/SolarP_IS/ImageServer/identify");
                                     console.log(e.mapPoint);
 
                                     query.geometry = e.mapPoint;
@@ -636,6 +727,7 @@
 
                                     //Execute task
                                     queryTask.execute(query, function (results) {
+									    
                                         console.log(results.value);
                                         var val = results.value;
                                         var v = val / 1000 / 365;
@@ -651,10 +743,19 @@
                                             default:
                                                 quality = "Good";
                                         }
+										
                                         var result = "<H3><strong>INSOLATION (kWh/m<sup>2</sup>)</strong></H3><p>Total per Year: " + y.toFixed(2) + "<br />Avg per Day: " + v.toFixed(2)+" (" + quality + ")</p>";
                                         //$('#r').innerHTML = result;
+										
                                         document.getElementById('r').innerHTML = result;
                                         $("#r").show();
+										if(utilLinkFlag==0){
+										    //console.log('Caught Flag = 0');
+											$("#utilLink").show();
+                            				utilLinkFlag=1;
+                            				}
+                        				
+										
 
                                     });
                                     
@@ -676,11 +777,60 @@
                                     //  Centers map at point
                                     //map.centerAt(point);
                     }
-                    
-                    // ajax/jsonp technique, use this to query map service until image service is lie
+					
+					// Click on map to query image service
+    				var clicky = map.on("click", eusaQuery);
+					
+					// EUSA query
+					
+					function eusaQuery(e){
+						console.log("EUSA Click Handled!");
+					    //var infoTemplate = new InfoTemplate("${ELEC_COMP}", "<b>Name:   </b><br>&nbsp;&nbsp;&nbsp;&nbsp;${FULL_NAME}<br><br><b>Address:  </b><br>&nbsp;&nbsp;&nbsp;&nbsp;${STREET}<br>          &nbsp;&nbsp;&nbsp;&nbsp;${CITY},   ${STATE}  ${ZIP}<br><br><b>Phone Number:  </b><br>&nbsp;&nbsp;&nbsp;&nbsp;${PHONE:NumberFormat}<br><br><b>Website:  </b><br>&nbsp;&nbsp;&nbsp;&nbsp;<a href= ${WEBSITE}>${ELEC_COMP}</a>");
+ 
+                        var query = new Query();
+                        var queryTask = new QueryTask("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/Eusa/MapServer/0");
+                        console.log(e.mapPoint);
+                        query.geometry = e.mapPoint;
+                        query.geometryType = "esriGeometryPoint";
+                        query.outFields = ["*"];
+                        query.spatialRelationship = query.SPATIAL_REL_INTERSECTS;
+                        query.mosaicRule = "";
+                        query.sr = 102100;
+                        query.imageDisplay = 1;
+                        query.tolerance = 1;
+                        query.returnGeometry = true;
+                        query.returnZ = false;
+                        query.returnM = false;
+                
+                        query.f = "pjson";
+
+
+                        //Execute task
+                        queryTask.execute(query, function (results) {
+								 console.log(results.features[0]);
+                            fullname = results.features[0].attributes["FULL_NAME"];
+								city = results.features[0].attributes["CITY"];
+								street = results.features[0].attributes["STREET"];
+								phone = results.features[0].attributes["PHONE"];
+								website = results.features[0].attributes["WEBSITE"];
+								elec_comp = results.features[0].attributes["ELEC_COMP"];
+								zip = results.features[0].attributes["ZIP"];
+							
+								var result = "<p><b>Utility Service Provider:   </b><br />" + fullname + "<br />" + street + "<br />" + city + ", MN " + zip + "<br />" + phone + "<br /><a target='_blank' href='http://" + website + "'>" + website + "</a></p><p><a href='http://www.dsireusa.org/solar/incentives/index.cfm?re=1&ee=1&spv=1&st=0&srp=0&state=MN' target='_blank'>MN Incentives/Policies for Solar</a></p>";
+   
+                            document.getElementById('utilInfo').innerHTML = result;
+                
+                        });
+                
+					}
+					
+    
+					
+					
+					// ajax/jsonp technique, use this to query map service until image service is live
                 
                     function pointSolar(x, y, sr) {
-                        //console.log("Click handled!");
+                        console.log("Click handled!");
                         $("#r").show();
                 
                         //var solarR = "http://geog-201458220.ad.umn.edu:6080/arcgis/rest/services/hen_ram_solar2/MapServer/identify?geometry=" + x + "%2C" + y + "&geometryType=esriGeometryPoint&sr=" + sr + "&layers=&layerDefs=&time=&layerTimeOptions=&tolerance=1&mapExtent=195135%2C5428039%2C195136%2C5428040&imageDisplay=1&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&dynamicLayers=&returnZ=false&returnM=false&gdbVersion=&f=pjson";
