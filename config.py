@@ -17,11 +17,13 @@ if not os.path.isfile(conffile):
     raise
 
 config.readfp(open(conffile))
-os.environ["PATH"] += os.pathsep + config.get('paths','lastools_bin_dir') 
+os.environ["PATH"] += os.pathsep + config.get('paths','lastools_bin_dir') + os.pathsep + config.get('paths','extra_path_dirs') 
 
 try:
     libs = config.get('paths','extra_python_dirs') 
     sys.path += libs.split(';')
 except:
     # Do nothing. Must nut have an extra_python_dirs value
+    print "oh noes!"
+    exit()
     pass

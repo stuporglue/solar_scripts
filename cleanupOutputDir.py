@@ -8,10 +8,8 @@ import shutil
 
 outdir = "F:\SolarResourceData\Final_SRR"
 
-paths = ["F:\\SolarResourceData\\Output_SRR\\",
-         "F:\\SolarResourceData\\FromMSI\Output_SRR\\",
-         "F:\\SolarResourceData\\Output_SRR_From_fileshare\\Output_SRR\\"
-         ]
+paths = ["F:\\SolarResourceData\\FromMSI\Output_SRR\\"]
+
 for path in paths:
     print "Processing " + path
     for img in glob.glob(path + '\\*.img'):
@@ -21,33 +19,38 @@ for path in paths:
         if not os.path.exists(dirname):
             os.mkdir(dirname)
 
-        filenames = {
-                path + 'SRR_' + str(imgnumber) + '.img.aux.xml' : dirname + 'SRR_' + str(imgnumber) + '.img.aux.xml',
-                path + 'SRR_' + str(imgnumber) + '.img.xml' : dirname + 'SRR_' + str(imgnumber) + '.img.xml',
-                path + 'SRR_' + str(imgnumber) + '.rrd' : dirname + 'SRR_' + str(imgnumber) + '.rrd',
-                path + 'SRR_' + str(imgnumber) + '.img' : dirname + 'SRR_' + str(imgnumber) + '.img'
-                }
+        srcbase = path + 'SRR_' + str(imgnumber)
+        dstbase = dirname + 'SRR_' + str(imgnumber)
 
-        #print img
+        extensions = [
+                '.img',
+                '.img.aux.xml',
+                '.rrd',
+                '.img.xml'
+                ]
 
-        for src,dst in filenames.iteritems():
-            if os.path.isfile(src):
-                #print "Src file " + src + " found (good)"
-                if not os.path.isfile(dst):
-                    #print "Dest file " + dst + " not found (good)"
-                    print "Moving " + src + " to " + dst
-                    #sys.stdout.write('.')
+
+        if not os.path.isfile(dstbase + '.img'):
+            print "Copygin " + dstbase + " because it doesn't exist"
+            for ext in extensions:
+                try:
+                    shutil.move(srcbase + ext,dstbase + ext)
+                except:
                     try:
-                        shutil.move(src,dst)
+                        shutil.copy2(srcbase + ext,dstbase + ext)
                     except:
-                        try:
-                            shutil.copy2(src,dst)
-                        except:
-                            print sys.exc_info()
-                            exit()
-                else:
-                    print dst + " already exists"
-
-        #exit()
-
-
+                        print sys.exc_info()
+                        exit()
+        elif os.path.getsize(srcbase + '.img') > os.path.getsize(dstbase + '.img'):
+            print "Copygin " + dstbase + " because it's bigger"
+            for ext in extensions:
+                try:
+                    shutil.move(srcbase + ext,dstbase + ext)
+                except:
+                    try:
+                        shutil.copy2(srcbase + ext,dstbase + ext)
+                    except:
+                        print sys.exc_info()
+                        exit()
+        else:
+            pass

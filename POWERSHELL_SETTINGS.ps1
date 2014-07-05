@@ -8,4 +8,6 @@ $currentExecutingPath = $MyInvocation.MyCommand.Definition.Replace($MyInvocation
 # Make our directry first, then our python
 $env:PATH = $currentExecutingPath + ";C:\Python27\ArcGISx6410.2;" + $env:PATH
 
-$env:PYTHONPATH = $currentExecutingPath + ";" + $env:PYTHONPATH
+$env:PYTHONPATH = $currentExecutingPath + ";" + $env:PYTHONPATH +  ";" + "D:\Scripts\bin\gdal" + ";" + "D:\Scripts\bin\gdal\python" + ";" + "D:\Scripts\bin\gdal-data" + ";" + "D:\Scripts\bin"
+
+$env:PATH = $env:PATH + ";" + $env:PYTHONPATH

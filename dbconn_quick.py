@@ -21,7 +21,6 @@ password = config.get('postgres','pass')
 
 def _getConn():
     cur = False
-    print "Trying to connect to the database"
     dbsleeper = 0.3 # start by sleeping for .3 seconds. Sleep at most 5 seconds
     while not cur:
         try:
@@ -33,15 +32,11 @@ def _getConn():
                     'password':password
                     }
             conn=psycopg2.connect(**args)
-            print "Successfuly connected to the db"
             conn.autocommit=True
             cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
             #cur = conn.cursor()
-            print "Here's a cursor"
             return cur
         except:
-            print "Failed as " + str(cur) + ' ' + str(sys.exc_info()[0])
-            print "Sleeping for " + str(dbsleeper)
             cur = False
             time.sleep(dbsleeper + time.time() % 1)
             if dbsleeper < 5:
@@ -63,8 +58,6 @@ def run_query(q):
                 cur.close()
                 return rows
             except Exception as exp:
-                print "Exception"
-                print exp
                 time.sleep(dbsleeper + time.time() % 1)
 
 
@@ -82,6 +75,4 @@ def send_query(q):
                 cur.close()
                 return True 
             except Exception as exp:
-                print "Exception"
-                print exp
                 time.sleep(dbsleeper + time.time() % 1)
