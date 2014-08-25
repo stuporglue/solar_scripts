@@ -22,7 +22,7 @@
 <body>
 <div id="SplashScreen">
   <h3>WELCOME</h3>
-  <p>Tap anywhere on this map of Minnesota to view solar radiation per square meter, or tap the <img src="/solar/images/locate_button.jpg" height="30px"/> icon to measure insolation at your current location. </p>
+  <p>Tap anywhere on this map of Minnesota to view solar radiation per square meter, or tap the <img src="/solar/images/locate_button.gif" height="30px"/> icon to measure insolation at your current location. </p>
   <div id="colorRamp"> <strong>LEGEND:</strong> <img src="/solar/images/ramp_v2.png" style="padding-top:8px;max-width:250px;"/><br />
   </div>
   <div id="website">
@@ -39,8 +39,16 @@
 <div id="BasemapToggle"></div>
 <div id="HelpMe">?</div>
 <div id="map" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'"> <a href="http://solarp.uspatial.umn.edu" target="_blank"><img src="/solar/images/UMN_M_white.gif" alt="University of Minnesota" id="umnLogo" /></a> </div>
-<script type='text/javascript' src='http://code.jquery.com/jquery-2.0.2.js'></script> 
-<script type='text/javascript' src="http://js.arcgis.com/3.9/"></script> 
+<script type="text/javascript">
+	var basemapURL = 'http://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/';  //imagery basemap
+	var imgDisplayURL = 'http://gis.uspatial.umn.edu/arcgis/rest/services/solar/Solar/ImageServer/';  //solar data for display
+	var imgIdentifyURL = imgDisplayURL + 'identify';  //solar data for querying insolation
+	var vectorDataURL = 'http://gis.uspatial.umn.edu/arcgis/rest/services/solar/solar_fgdb/MapServer/';
+	var bareEarthCountyURL = vectorDataURL + '1';  //vector layer for identifying counties with only bare earth lidar
+	var eusaURL = vectorDataURL + '0';  //utility service providers vector layer
+</script>
+<script type='text/javascript' src='http://code.jquery.com/jquery-2.0.2.js'></script>
+<script type='text/javascript' src="http://js.arcgis.com/3.9/"></script>
 <script type='text/javascript' src="solar.js"></script>
 </body>
 </html>

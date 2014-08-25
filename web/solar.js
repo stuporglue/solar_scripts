@@ -62,11 +62,14 @@ $(window).load(function () {
 
         // Close spashscreen when x or map is clicked
         $('#closeSplash').on('click', function () {
-            $("#SplashScreen").fadeToggle('slow');
+            $("#SplashScreen").fadeOut('slow');
         });
         $('#map').on('click', function () {
             $('#SplashScreen').fadeOut('slow');
         });
+		 $('.close').on("click", function () {
+    		$(this).parents('div').fadeOut();
+		});
 
 
         // Setup World Imagery Basemap
@@ -76,7 +79,7 @@ $(window).load(function () {
                 opacity: 1,
                 visibility: true,
                 showAttribution: false,
-                url: 'http://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/'
+                url: basemapURL
             }],
             title: "Solar"
         };
@@ -97,7 +100,7 @@ $(window).load(function () {
         rasterFunction.variableName = "Raster";
         params.renderingRule = rasterFunction;
         params.noData = 0;
-        var layer = new ArcGISImageServiceLayer("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/SolarP_ISv2/ImageServer", {
+        var layer = new ArcGISImageServiceLayer(imgDisplayURL, {
             imageServiceParameters: params,
             showAttribution: false,
             opacity: 1.0
@@ -189,8 +192,12 @@ $(window).load(function () {
         }, "LocateButton");
         geoLocate.startup();
 
+		geocoder.on("select", showResults);
+
         $("#currentLoc").click(function () {
             if (navigator.geolocation) {
+				  $("#r").fadeOut('fast');
+				  $('#SplashScreen').fadeOut('slow');
                 navigator.geolocation.getCurrentPosition(zoomToLocation, locationError);
                 //watchId = navigator.geolocation.watchPosition(showLocation, locationError);
             } else {
@@ -224,9 +231,24 @@ $(window).load(function () {
 
         function zoomToLocation(location) {
             var pt = new Point(location.coords.longitude, location.coords.latitude);
-            addGraphic(pt);
-            map.centerAndZoom(pt, 15);
-            pointSolar(location.coords.longitude, location.coords.latitude, 4326);
+
+            map.centerAndZoom(pt, 18);
+			
+			 var evt = {};
+			 evt.mapPoint = pt;
+			 
+			 pixelQuery(evt);
+        }
+		
+		 function zoomToCoords(x, y, zoomLevel) {
+            var pt = new Point(x, y);
+
+            map.centerAndZoom(pt, zoomLevel);
+			
+			 var evt = {};
+			 evt.mapPoint = pt;
+			 
+			 pixelQuery(evt);
         }
 
         function showLocation(location) {
@@ -241,19 +263,36 @@ $(window).load(function () {
         }
 
         function addGraphic(pt) {
+			 map.graphics.clear();
             graphic = new Graphic(pt, pinSymbol);
             map.graphics.add(graphic);
         }
 		
+		function showResults(evt) {
+			//$("#r").fadeOut('fast');
+           $("#SplashScreen").fadeOut('slow');
+			map.graphics.clear();
+		    var point = evt.result.feature.geometry;
+			var symbol = new SimpleMarkerSymbol();
+			console.log("assigned symbol");
+			symbol.setStyle(SimpleMarkerSymbol.STYLE_DIAMOND);
+			symbol.setColor(new Color([0,255,255]));
+			var graphic = new Graphic(point, symbol);
+			map.graphics.add(graphic);
+			var result = "<p>Click/Zoom anywhere near your search result (<img src='/solar/images/blue_diamond.gif'>) to view solar radiation per square meter.</p><p>Struggling to find what you are looking for? Try using the basemap toggle button at left to bring up satellite imagery for further help finding the spot you wish to analyze.</p>";
+
+                        document.getElementById('r').innerHTML = result;
+                        $("#r").fadeIn('slow');
+		}
 
         // Click on map to query solar imageservice, bare earth county layer, and utility service area layer
         var clicky = map.on("click", pixelQuery);
 
         function pixelQuery(e) {
-
+		
             //setup insolation query
             var query = new Query();
-            var queryTask = new QueryTask("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/SolarP_IS/ImageServer/identify");
+            var queryTask = new QueryTask(imgIdentifyURL);
             query.geometry = e.mapPoint;
             query.geometryType = "esriGeometryPoint";
             query.mosaicRule = "";
@@ -268,16 +307,16 @@ $(window).load(function () {
 
             //setup bare earth county layer query
             var BEquery = new Query();
-            var BEQueryTask = new QueryTask("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/solar_fgdb/MapServer/1");
+            var BEQueryTask = new QueryTask(bareEarthCountyURL);
             BEquery.geometry = e.mapPoint;
             BEquery.geometryType = "esriGeometryPoint";
-            BEquery.outFields = ["*"];
+            BEquery.outFields = ["bare_earth","COUNTYNAME"];
             BEquery.spatialRelationship = query.SPATIAL_REL_INTERSECTS;
             BEquery.mosaicRule = "";
             BEquery.sr = 102100;
             BEquery.imageDisplay = 1;
             BEquery.tolerance = 1;
-            BEquery.returnGeometry = true;
+            BEquery.returnGeometry = false;
             BEquery.returnZ = false;
             BEquery.returnM = false;
             BEquery.f = "pjson";
@@ -294,6 +333,10 @@ $(window).load(function () {
                     if (bareEarth === 1) {
                         var warning = "**";
                         var warningMsg = "<p>**<span id='smText'>The lidar data available for " + county + " County includes only bare earth points. Hence, this insolation value does not take shade from nearby surface features into consideration.</span></p>";
+						
+							if(county == "Pine") {
+								var warningMsg = "<p>**<span id='smText'>The lidar data available for " + county + " County was inconsistently classified across different flight lines. Hence, insolation accuracy is variable as shade from nearby surface features may not be taken into consideration.</span></p>";
+							}
                  
                     } else {
                         var warning = "";
@@ -326,7 +369,7 @@ $(window).load(function () {
 
 						  //setup Utility Service Provider query
                         var query = new Query();
-                        var queryTask = new QueryTask("http://us-dspatialgis.oit.umn.edu:6080/arcgis/rest/services/solar/solar_fgdb/MapServer/0");
+                        var queryTask = new QueryTask(eusaURL);
                         console.log(e.mapPoint);
                         query.geometry = e.mapPoint;
                         query.geometryType = "esriGeometryPoint";
@@ -336,7 +379,7 @@ $(window).load(function () {
                         query.sr = 102100;
                         query.imageDisplay = 1;
                         query.tolerance = 1;
-                        query.returnGeometry = true;
+                        query.returnGeometry = false;
                         query.returnZ = false;
                         query.returnM = false;
                         query.f = "pjson";
@@ -350,8 +393,14 @@ $(window).load(function () {
                             website = results.features[0].attributes["WEBSITE"];
                             elec_comp = results.features[0].attributes["ELEC_COMP"];
                             zip = results.features[0].attributes["ZIP"];
+							
+							if(quality == "Poor") {
+								var getstarted = "<p>Location not optimal? Check out:<br /><a href='http://mncerts.org/solargardens' target='_blank'>Community Solar Gardens</a></p>";
+							}else{
+								var getstarted = "<p><a href='http://thecleanenergybuilder.com/directory#resultsType=both&page=0&pageNum=25&order=alphaTitle&proximityNum=60&proximityInput=" + zip + "&textInput=&textSearchTitle=1&textSearchDescription=1&field_established=&field_employees=&field_year=&reload=false&mapSize=large&allResults=false&tids2=&tids3=568&tids4=&tids5=&tids6=' target='_blank'>Get Started: Contact a Local Installer</a></p>";
+							}
 
-                            var result = "<p><b>Utility Service Provider:   </b><br />" + fullname + "<br />" + street + "<br />" + city + ", MN " + zip + "<br />" + phone + "<br /><a target='_blank' href='http://" + website + "'>" + website + "</a></p><p><a href='http://www.dsireusa.org/solar/incentives/index.cfm?re=1&ee=1&spv=1&st=0&srp=0&state=MN' target='_blank'>MN Incentives/Policies for Solar</a></p>";
+                            var result = "<p><b>Utility Service Provider:   </b><br />" + fullname + "<br />" + street + "<br />" + city + ", MN " + zip + "<br />" + phone + "<br /><a target='_blank' href='http://" + website + "'>" + website + "</a></p><p><a href='http://www.dsireusa.org/solar/incentives/index.cfm?re=1&ee=1&spv=1&st=0&srp=0&state=MN' target='_blank'>MN Incentives/Policies for Solar</a></p>" + getstarted;
 
 							   //add service utility provider to insolation results
                             document.getElementById('r').innerHTML = document.getElementById('r').innerHTML + "<hr />" + result;
